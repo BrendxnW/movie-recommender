@@ -38,3 +38,21 @@ class GreetingPromptTest:
     def generate_prompt(self, name):
         hellos = ['Hi,', 'Hello,', 'Howdy,', 'Hey there,', 'Heyo,']
         return (f"{ran.choice(hellos)} {self.name}!")
+
+
+class RecommendMovie:
+    """
+    Finds the recommened types of movies for the user
+    """
+
+    def __init__(self):
+        model_name = "meta-llama/Llama-3.1-8B"
+        pipeline = transformers.pipeline("text-generation", model=model_name, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+
+    def find_movie(self):
+        """
+        Finds what type of movie the user is looking for based on their answer
+        """
+        get_movies = self.pipeline("What type of movie are you looking for?\n")
+
+        return get_movies
