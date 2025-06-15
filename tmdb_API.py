@@ -5,8 +5,7 @@ import requests
 load_dotenv()
 API_KEY = os.getenv("TMDB_API_KEY")
 BASE_URL = "https://api.themoviedb.org/3"
-BEARER_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMDhiN2ZmNTIzMWMyNTE3YzQ3YjEyZmM5NTk3YTFiYyIsIm5iZiI6MTc0ODU2NzMyMy42MzUsInN1YiI6IjY4MzkwNTFiYzdkMWEzYjgyOTA4MDdlZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.BeX-zrb02dndbiIdfly0cNqeRlA6gtG0rUjvuHhEJC8"
-
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
 def get_movie_genre_id():
     """
