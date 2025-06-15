@@ -1,5 +1,40 @@
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+import random as ran
 
 
+class GreetingPrompt:
+    """
+    Ranomly generates a greeting prompt
+    """
+    def __init__(self):
+        model_name = "ramsrigouthamg/t5_paraphraser"
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+        self.generator = pipeline('text2text-generation', model=model, tokenizer=tokenizer)
+
+    def generate_greeting(self, seed_text="Hello! What is your name?", num_prompts=5, max_length=30):
+        input_text = f"paraphrase: {seed_text}"
+        outputs = self.generator(
+            input_text,
+            max_length=max_length,
+            num_return_sequences=num_prompts,
+            num_beams=max(num_prompts, 5),
+            truncation=True
+        )
+        return [out['generated_text'].strip() for out in outputs]
+
+
+
+class GreetingPromptTest:
+    """
+    Testing another version of greeting prompt
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    def generate_prompt(self, name):
+        hellos = ['Hi,', 'Hello,', 'Howdy,', 'Hey there,', 'Heyo,']
+        return (f"{ran.choice(hellos)} {self.name}!")
