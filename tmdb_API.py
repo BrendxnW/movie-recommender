@@ -11,9 +11,10 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
 class InvalidGenreError(Exception):
     """
-    Custom Error if there is an invalid genre
+    Custom error if there is an invalid genre
     """
     pass
+
 
 def get_movie_genre_id(genre_name):
     """
@@ -29,18 +30,19 @@ def get_movie_genre_id(genre_name):
 
     genres = response.json().get("genres", [])
     for genre in genres:
-        if genre["name"].lower() == genre_name.lower():
+        if genre["name"].title() == genre_name.title():
             return genre["id"]
     raise InvalidGenreError(f"Unfamiliar with the genre: \"{genre_name}\"")
 
 
-def get_movies_by_genre(genre):
+def get_movies_by_genre(genre_name):
     """
     Gets movies by genre
     """
-    genre_id = get_movie_genre_id(genre.lower())
+    genre_id = get_movie_genre_id(genre_name.title())
 
-    url = "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
+
+    url = f"https://api.themoviedb.org/3/discover/movie?with_genres={genre_id}&include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
 
     headers = {
         "accept": "application/json",
@@ -49,4 +51,6 @@ def get_movies_by_genre(genre):
 
     response = requests.get(url, headers=headers)
 
-    return response.text
+    data = response.json()
+    return [movie["title"] for movie in data.get("results", [])[:5]]
+
