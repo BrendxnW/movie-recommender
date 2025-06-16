@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import requests
+import random
 
 
 load_dotenv()
@@ -52,5 +53,7 @@ def get_movies_by_genre(genre_name):
     response = requests.get(url, headers=headers)
 
     data = response.json()
-    return [movie["title"] for movie in data.get("results", [])[:5]]
+    titles = [movie["title"] for movie in data.get("results", [])]
+    return random.sample(titles, k=(5))
+
 
