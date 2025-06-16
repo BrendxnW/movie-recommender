@@ -1,13 +1,6 @@
-import os
-from dotenv import load_dotenv
 import requests
 import random
-
-
-load_dotenv()
-API_KEY = os.getenv("TMDB_API_KEY")
-BASE_URL = "https://api.themoviedb.org/3"
-BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+from config import *
 
 
 class InvalidGenreError(Exception):
@@ -21,12 +14,9 @@ def get_movie_genre_id(genre_name):
     """
     Gets the movie id from the given genre
     """
-    url = "https://api.themoviedb.org/3/genre/movie/list?language=en"
+    url = f"{BASE_URL}/genre/movie/list?language=en"
 
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {BEARER_TOKEN}"
-    }
+    headers = HEADERS
     response = requests.get(url, headers=headers)
 
     genres = response.json().get("genres", [])
@@ -42,18 +32,18 @@ def get_movies_by_genre(genre_name):
     """
     genre_id = get_movie_genre_id(genre_name.title())
 
+    url = f"{BASE_URL}/discover/movie?with_genres={genre_id}&include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
 
-    url = f"https://api.themoviedb.org/3/discover/movie?with_genres={genre_id}&include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
-
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {BEARER_TOKEN}"
-    }
-
+    headers = HEADERS
     response = requests.get(url, headers=headers)
 
     data = response.json()
     titles = [movie["title"] for movie in data.get("results", [])]
     return random.sample(titles, k=(5))
 
+
+def get_movies_with_actors(actor_name):
+    """
+    Gets movie recommendation with the actor in the movie
+    """
 
