@@ -28,6 +28,9 @@ class ChatBot:
         """
         Asks the user with randomized prompts of what type of movie they're looking for.
         """
+        
+        options = int(input("Features:\n[1] Movie Recommender\n[2] Movie Remixer"))
+
         return RecommendMovie().find_movie()
 
 
