@@ -1,33 +1,12 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
-import random as ran
+import torch
+import random
+
+
+device = torch.device('cpu')
 
 
 class GreetingPrompt:
-    """
-    Ranomly generates a greeting prompt
-    """
-    def __init__(self):
-        model_name = "ramsrigouthamg/t5_paraphraser"
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-        self.generator = pipeline('text2text-generation', model=model, tokenizer=tokenizer)
-
-    def generate_greeting(self, seed_text="Hello! What is your name?", num_prompts=5, max_length=30):
-        input_text = f"paraphrase: {seed_text}"
-        outputs = self.generator(
-            input_text,
-            max_length=max_length,
-            num_return_sequences=num_prompts,
-            num_beams=max(num_prompts, 5),
-            truncation=True
-        )
-        return [out['generated_text'].strip() for out in outputs]
-
-
-
-class GreetingPromptTest:
     """
     Testing another version of greeting prompt
     """
@@ -37,7 +16,7 @@ class GreetingPromptTest:
 
     def generate_prompt(self, name):
         hellos = ['Hi,', 'Hello,', 'Howdy,', 'Hey there,', 'Heyo,']
-        return (f"{ran.choice(hellos)} {self.name}!")
+        return (f"{random.choice(hellos)} {self.name}!")
 
 
 class RecommendMovie:
@@ -47,25 +26,37 @@ class RecommendMovie:
 
     def __init__(self):
         model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-        pipeline = transformers.pipeline("text-generation", model=model_name, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+        self.pipeline = pipeline("text-generation", model=model_name, model_kwargs={"torch_dtype": "auto"}, device_map=1)
 
-        messages = [
-            {"role": "system", "content": "You are a movie recommender chatbot who asks the user what type of movie they're looking for and classifies what genre they're looking for"},
-        ]
 
-        outputs = pipeline(
-            messages,
-            max_new_tokens=256,
+    def classify_genre(self):
+        """
+        Classifies the genre that is given by the user
+        """
+        prompt = (
+            "You are a movie recommender bot.\n"
+            "Classify the movie genre based on the user's request.\n\n"
+            f"User: {user_input}\n"
+            "Genre:"
         )
-        print(outputs[0]["generated_text"][-1])
 
+        outputs = self.generator(
+            prompt,
+            max_new_tokens=50,
+            do_sample=True,
+            temperature=0.7,
+        )
 
+        response = (outputs[0]["generated_text"])
+        genre_only = response.split("Genre:")[-1].strip()
+        return genre_only
 
 
     def find_movie(self):
         """
         Finds what type of movie the user is looking for based on their answer
         """
-        get_movies = self.pipeline("What type of movie are you looking for?\n")
+        get_movies = input("What type of movie are you looking for?\n")
+        find_genre = self.classify_genre(get_movie)
 
-        return get_movies
+        return find_genre

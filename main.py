@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import random as ran
 import torch
-from nlp_utils import GreetingPromptTest, RecommendMovie
+from nlp_utils import GreetingPrompt, RecommendMovie
 
 device = torch.device('cpu')
 
@@ -19,8 +19,8 @@ class ChatBot:
         """
         Greets the user and asks for their name.
         """
-        name = input("What can I call you?\n")
-        greeter = GreetingPromptTest(name)
+        name = input("What can I call you?\n").capitalize()
+        greeter = GreetingPrompt(name)
         return greeter.generate_prompt(name)
 
 
