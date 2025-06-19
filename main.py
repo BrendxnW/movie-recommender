@@ -28,8 +28,7 @@ class ChatBot:
         """
         Asks the user with randomized prompts of what type of movie they're looking for.
         """
-        movie_getter = RecommendMovie()
-        return movie_getter()
+        return RecommendMovie().find_movie()
 
 
 if __name__ == "__main__":

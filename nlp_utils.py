@@ -1,4 +1,5 @@
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from accelerate import init_empty_weights, infer_auto_device_map
 import torch
 import random
 
@@ -21,18 +22,12 @@ class GreetingPrompt:
 
 class RecommendMovie:
     """
-    Finds the recommened types of movies for the user
     """
-
     def __init__(self):
-        model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-        self.pipeline = pipeline("text-generation", model=model_name, model_kwargs={"torch_dtype": "auto"}, device_map=1)
+        self.generator = pipeline("text2text-generation", model="google/flan-t5-base")
 
 
-    def classify_genre(self):
-        """
-        Classifies the genre that is given by the user
-        """
+    def classify_genre(self, user_input):
         prompt = (
             "You are a movie recommender bot.\n"
             "Classify the movie genre based on the user's request.\n\n"
@@ -47,7 +42,7 @@ class RecommendMovie:
             temperature=0.7,
         )
 
-        response = (outputs[0]["generated_text"])
+        response = outputs[0]["generated_text"]
         genre_only = response.split("Genre:")[-1].strip()
         return genre_only
 
@@ -57,6 +52,6 @@ class RecommendMovie:
         Finds what type of movie the user is looking for based on their answer
         """
         get_movies = input("What type of movie are you looking for?\n")
-        find_genre = self.classify_genre(get_movie)
+        find_genre = self.classify_genre(get_movies)
 
         return find_genre
