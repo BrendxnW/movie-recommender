@@ -46,8 +46,21 @@ class RecommendMovie:
     """
 
     def __init__(self):
-        model_name = "meta-llama/Llama-3.1-8B"
+        model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
         pipeline = transformers.pipeline("text-generation", model=model_name, model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto")
+
+        messages = [
+            {"role": "system", "content": "You are a movie recommender chatbot who asks the user what type of movie they're looking for and classifies what genre they're looking for"},
+        ]
+
+        outputs = pipeline(
+            messages,
+            max_new_tokens=256,
+        )
+        print(outputs[0]["generated_text"][-1])
+
+
+
 
     def find_movie(self):
         """
