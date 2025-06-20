@@ -1,6 +1,7 @@
 # Exclude these files
 tmdb_API_test.py
 config.py
+db.sqlite3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
