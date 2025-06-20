@@ -29,10 +29,13 @@ class ChatBot:
         Asks the user with randomized prompts of what type of movie they're looking for.
         """
         
-        options = int(input("Features:\n[1] Movie Recommender\n[2] Movie Remixer"))
+        options = int(input("\nFeatures:\n[1] Movie Recommender\n[2] Movie Remixer\n"))
 
-        return RecommendMovie().find_movie()
 
+        if options == 1:
+            return RecommendMovie().find_movie()
+        if options == 2:
+            return("Feature coming soon")
 
 if __name__ == "__main__":
     

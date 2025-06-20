@@ -1,6 +1,6 @@
 import requests
 import random
-from config import *
+from django.conf import settings
 
 
 class InvalidGenreError(Exception):
