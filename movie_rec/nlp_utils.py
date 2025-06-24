@@ -15,13 +15,14 @@ class GreetingPrompt:
     def __init__(self, name):
         self.name = name
 
-    def generate_prompt(self, name):
+    def generate_prompt(self):
         hellos = ['Hi,', 'Hello,', 'Howdy,', 'Hey there,', 'Heyo,']
-        return (f"{random.choice(hellos)} {self.name}!")
+        return f"{random.choice(hellos)} {self.name}!"
 
 
 class RecommendMovie:
     """
+    Classifies movies based on user input.
     """
     def __init__(self):
         self.generator = pipeline("text2text-generation", model="google/flan-t5-base")
@@ -46,12 +47,3 @@ class RecommendMovie:
         genre_only = response.split("Genre:")[-1].strip()
         return genre_only
 
-
-    def find_movie(self):
-        """
-        Finds what type of movie the user is looking for based on their answer
-        """
-        get_movies = input("What type of movie are you looking for?\n")
-        find_genre = self.classify_genre(get_movies)
-
-        return find_genre

@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import random as ran
 import torch
 from nlp_utils import GreetingPrompt, RecommendMovie
+from recommender import FindMovie
 
 device = torch.device('cpu')
 
@@ -21,7 +21,7 @@ class ChatBot:
         """
         name = input("What can I call you?\n").capitalize()
         greeter = GreetingPrompt(name)
-        return greeter.generate_prompt(name)
+        return greeter.generate_prompt()
 
 
     def prompts(self):
@@ -33,9 +33,11 @@ class ChatBot:
 
 
         if options == 1:
-            return RecommendMovie().find_movie()
+            return FindMovie().suggest()
         if options == 2:
-            return("Feature coming soon")
+            return "Feature coming soon"
+        return None
+
 
 if __name__ == "__main__":
     
