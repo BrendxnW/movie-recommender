@@ -2,16 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movie Recommender</title>
+    <title>Movie Recommender Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        h1 {
+        text-size: 500px
+        }
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff; /* White background for chat */
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            margin: 1rem; /* Add some margin for smaller screens */
+        }
+        .message-bubble {
+            background-color: #e2e8f0; /* Light blue-gray for bot messages */
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem; /* Rounded corners for bubbles */
+            margin-bottom: 0.75rem;
+            max-width: 80%;
+            align-self: flex-start; /* Align bot messages to the left */
+        }
+        .user-message-bubble {
+            background-color: #3b82f6; /* Blue for user messages */
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            max-width: 80%;
+            align-self: flex-end; /* Align user messages to the right */
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically on small screens */
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .action-button {
+            background-color: #4f46e5; /* Indigo button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            text-align: center;
+        }
+        .action-button:hover {
+            background-color: #4338ca; /* Darker indigo on hover */
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) { /* sm breakpoint */
+            .button-group {
+                flex-direction: row; /* Buttons side-by-side on larger screens */
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app" class="chat-container">
         <div id="messages" class="flex flex-col mb-4">
+            <h1>
+                Hello! I'm your Movie Chatbot!
+            </h1>
+
             <div class="message-bubble">
-                Hello! I'm your Movie Chatbot.
+                What can I call you?
             </div>
 
+            <form id="name-form" method="POST" action="/greet/">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="Your name" required />
+                <button type="submit">Send</button>
+            </form>
         </div>
+
+        {% if greeting %}
+        <div class="message-bubble bot-response">{{ greeting }}</div>
+        {% endif %}
     </div>
 </body>
 </html>
