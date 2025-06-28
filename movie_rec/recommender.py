@@ -1,4 +1,4 @@
-from nlp_utils import RecommendMovie
+from .nlp_utils import RecommendMovie
 
 
 class FindMovie:

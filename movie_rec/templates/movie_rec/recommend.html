@@ -6,7 +6,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         h1 {
-        text-size: 500px
+        text-size: 10px
         }
         body {
             font-family: "Inter", sans-serif;
@@ -46,14 +46,31 @@
             max-width: 80%;
             align-self: flex-end; /* Align user messages to the right */
         }
+
         .button-group {
             display: flex;
-            flex-direction: column; /* Stack buttons vertically on small screens */
+            justify-content: center;
             gap: 0.75rem;
             margin-top: 1rem;
         }
-        .action-button {
-            background-color: #4f46e5; /* Indigo button */
+
+        .button-group button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .button-group button:hover {
+            background-color: #4338ca;
+        }
+
+        .submit-button {
+            background-color: #4f46e5;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 0.75rem;
@@ -62,8 +79,8 @@
             transition: background-color 0.2s ease-in-out;
             text-align: center;
         }
-        .action-button:hover {
-            background-color: #4338ca; /* Darker indigo on hover */
+        .submit-button:hover {
+            background-color: #4338ca;
         }
 
         /* Responsive adjustments */
@@ -75,27 +92,44 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app" class="chat-container">
-        <div id="messages" class="flex flex-col mb-4">
-            <h1>
-                Hello! I'm your Movie Chatbot!
-            </h1>
+        <h1 class="txt-xl font bold mb-4 text-center">Hello! I'm your Movie Chatbot!</h1>
 
+        <div id="messages" class="flex flex-col mb-4">
+
+            {% if not greeting %}
             <div class="message-bubble">
                 What can I call you?
             </div>
 
             <form id="name-form" method="POST" action="/greet/">
                 {% csrf_token %}
-                <input type="text" name="name" placeholder="Your name" required />
-                <button type="submit">Send</button>
+                <input type="text" name="name" placeholder="Message" required />
+                <button type="submit" class="submit-button"></button>
             </form>
+            {% endif %}
+
+            {% if greeting %}
+                <div class="message-bubble bot-response">{{ greeting }}</div>
+
+                <div class="message-bubble">
+                    Which feature would you like to use?
+                </div>
+
+            <div class="button-group">
+                <a href="/" class="submit-button">Back</a>
+                <button type="button">Recommender</button>
+                <button type="button">Remixer</button>
+            </div>
+            {% endif %}
         </div>
 
-        {% if greeting %}
-        <div class="message-bubble bot-response">{{ greeting }}</div>
-        {% endif %}
+
+        </div>
     </div>
 </body>
 </html>
+
+

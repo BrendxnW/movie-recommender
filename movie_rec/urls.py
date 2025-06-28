@@ -1,7 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from .import views
+from .nlp_utils import *
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("movie_rec.urls")),
+    path("", views.greet_view),
+    path("greet/", views.greet_view, name="greet")
 ]

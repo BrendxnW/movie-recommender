@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import torch
-from nlp_utils import GreetingPrompt, RecommendMovie
-from recommender import FindMovie
+from .nlp_utils import GreetingPrompt, RecommendMovie
+from .recommender import FindMovie
 
 device = torch.device('cpu')
 

@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'movie_rec'
+    'movie_rec',
+    'django.contrib.sessions',
 ]
 
 MIDDLEWARE = [

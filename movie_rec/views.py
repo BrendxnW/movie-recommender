@@ -1,11 +1,39 @@
 from django.shortcuts import render
-from .chat_bot import ChatBot
-from .nlp_utils import RecommendMovie
+from .nlp_utils import RecommendMovie, GreetingPrompt
 
-def movie_recommender_view(request):
+
+def greet_view(request):
+    context = {}
+
     if request.method == "POST":
-        user_input = request.POST.get("movie_prompt")
-        recommender = RecommendMovie()
-        genre = recommender.classify_genre(user_input)
-        return render(request, "results.html", {"genre": genre})
-    return render(request, "recommend.html")
+        if "name" in request.POST:
+            name = request.POST.get("name", "").capitalize()
+            if name:
+                greeter = GreetingPrompt(name)
+                greeting = greeter.generate_prompt()
+                request.session['name'] = name
+                request.session['step'] = 'choose_feature'
+                context['greeting'] = greeting
+
+            elif "feature" in request.POST:
+                feature = request.POST.get("feature")
+                request.session['step'] = feature
+                context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
+                context['feature'] = feature
+
+            elif "movie_prompt" in request.POST:
+                user_input = request.POST.get("movie_prompt")
+                recommender = RecommendMovie()
+                genre = recommender.classify_genre(user_input)
+                context['movie_result'] = f"Sounds like you're in the mood for a {genre} movie."
+                context['feature'] = 'recommender'
+                context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
+
+    else:
+        request.session.flush()
+
+    return render(request, "movie_rec/recommend.html", context)
+
+
+
+
