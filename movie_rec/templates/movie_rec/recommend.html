@@ -118,16 +118,26 @@
                     Which feature would you like to use?
                 </div>
 
-            <div class="button-group">
-                <a href="/" class="submit-button">Back</a>
-                <button type="button">Recommender</button>
-                <button type="button">Remixer</button>
-            </div>
+            <form method="POST" class="button-group">
+              {% csrf_token %}
+              <button type="submit" name="feature" value="back" class="submit-button">Back</button>
+              <button type="submit" name="feature" value="recommender" class="submit-button">Recommender</button>
+              <button type="submit" name="feature" value="remixer" class="submit-button">Remixer</button>
+            </form>
             {% endif %}
         </div>
 
-
-        </div>
+        {% if show_recommender_prompt %}
+            <div class="message-bubble">
+                What kind of movie are you looking for?
+            </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="movie_prompt" placeholder="e.g. action, comedy" required />
+            <button type="submit">Send</button>
+        </form>
+        <a href="/feature" class="submit-button">Back</a>
+        {% endif %}
     </div>
 </body>
 </html>
