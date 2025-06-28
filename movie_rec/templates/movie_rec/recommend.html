@@ -94,51 +94,46 @@
 </head>
 
 <body>
-    <div id="app" class="chat-container">
-        <h1 class="txt-xl font bold mb-4 text-center">Hello! I'm your Movie Chatbot!</h1>
+  <div id="app" class="chat-container">
+    <h1 class="text-xl font-bold mb-4 text-center">Hello! I'm your Movie Chatbot!</h1>
 
-        <div id="messages" class="flex flex-col mb-4">
+    <div id="messages" class="flex flex-col mb-4">
 
-            {% if not greeting %}
-            <div class="message-bubble">
-                What can I call you?
-            </div>
-
-            <form id="name-form" method="POST" action="/greet/">
-                {% csrf_token %}
-                <input type="text" name="name" placeholder="Message" required />
-                <button type="submit" class="submit-button"></button>
-            </form>
-            {% endif %}
-
-            {% if greeting %}
-                <div class="message-bubble bot-response">{{ greeting }}</div>
-
-                <div class="message-bubble">
-                    Which feature would you like to use?
-                </div>
-
-            <form method="POST" class="button-group">
-              {% csrf_token %}
-              <button type="submit" name="feature" value="back" class="submit-button">Back</button>
-              <button type="submit" name="feature" value="recommender" class="submit-button">Recommender</button>
-              <button type="submit" name="feature" value="remixer" class="submit-button">Remixer</button>
-            </form>
-            {% endif %}
-        </div>
-
-        {% if show_recommender_prompt %}
-            <div class="message-bubble">
-                What kind of movie are you looking for?
-            </div>
-        <form method="POST">
-            {% csrf_token %}
-            <input type="text" name="movie_prompt" placeholder="e.g. action, comedy" required />
-            <button type="submit">Send</button>
+      {% if not greeting %}
+        <div class="message-bubble">What can I call you?</div>
+        <form id="name-form" method="POST" action="/greet/">
+          {% csrf_token %}
+          <input type="text" name="name" placeholder="Your name" required class="border p-2 rounded w-full mb-2" />
         </form>
-        <a href="/feature" class="submit-button">Back</a>
+      {% endif %}
+
+      {% if greeting %}
+        <div class="message-bubble bg-blue-100 rounded p-3">{{ greeting }}</div>
+      {% endif %}
+
+      {% if greeting and not feature %}
+        <div class="message-bubble bg-blue-100 rounded p-3">Which feature would you like to use?</div>
+        <form method="POST" class="flex gap-4">
+          {% csrf_token %}
+          <button type="submit" name="action" value="back" class="submit-button bg-gray-500 text-white px-4 py-2 rounded">Back</button>
+          <button type="submit" name="feature" value="recommender" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Recommender</button>
+          <button type="submit" name="feature" value="remixer" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Remixer</button>
+        </form>
+      {% endif %}
+
+      {% if feature == "recommender" %}
+        <div class="message-bubble bg-blue-100 rounded p-3">What kind of movie are you in the mood for?</div>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="text" name="movie_prompt" placeholder="Enter your mood or description" class="border p-2 rounded w-full mb-2" required />
+        </form>
         {% endif %}
+
+      {% if movie_result %}
+        <div class="message-bubble bg-blue-100 rounded p-3">{{ movie_result }}</div>
+      {% endif %}
     </div>
+  </div>
 </body>
 </html>
 
