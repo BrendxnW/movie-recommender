@@ -38,6 +38,8 @@ def greet_view(request):
             if request.POST.get("action") == "back":
                 request.session['step'] = 'choose_feature'
                 context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
+                context['feature'] = None
+                context['movie_result'] = None
 
         elif "movie_prompt" in request.POST:
             user_input = request.POST.get("movie_prompt")
