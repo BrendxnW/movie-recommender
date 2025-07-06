@@ -2,44 +2,28 @@ import requests
 import random
 from django.conf import settings
 
-
 class InvalidGenreError(Exception):
-    """
-    Custom error if there is an invalid genre
-    """
+    """Custom error if there is an invalid genre"""
     pass
 
 class InvalidActorError(Exception):
-    """
-    Custom error if there is an invalid actor name
-    """
+    """Custom error if there is an invalid actor name"""
     pass
 
 
 def get_movie_genre_id(genre_name):
     """
-    Gets the movie id from the given genre
+    Gets the movie id from the given genre.
+    Expects a cleaned genre name (e.g., 'comedy', 'horror', 'science fiction').
     """
     url = f"{settings.BASE_URL}/genre/movie/list?language=en"
     headers = settings.HEADERS
     response = requests.get(url, headers=headers)
-
     genres = response.json().get("genres", [])
-    genre_synonyms = {
-        "sci-fi": "Science Fiction",
-        "scifi": "Science Fiction",
-        "romcom": "Romance",
-        "cartoon": "Animation",
-        "animated": "Animation",
-        "action adventure": "Action",
-        # Add more as needed
-    }
-    # Use synonym if available
-    genre_name_clean = genre_name.lower().strip()
-    genre_name_mapped = genre_synonyms.get(genre_name_clean, genre_name_clean)
 
+    genre_name_clean = genre_name.lower().strip()
     for genre in genres:
-        if genre["name"].lower().strip() == genre_name_mapped:
+        if genre["name"].lower().strip() == genre_name_clean:
             return genre["id"]
     available = ", ".join([g["name"] for g in genres])
     raise InvalidGenreError(f"Unfamiliar with the genre: \"{genre_name}\". Available genres: {available}")
@@ -47,9 +31,10 @@ def get_movie_genre_id(genre_name):
 
 def get_movies_by_genre(genre_name):
     """
-    Gets movies recommendation with genre
+    Gets movie recommendations for a genre.
+    Expects a cleaned genre name.
     """
-    genre_id = get_movie_genre_id(genre_name.title())
+    genre_id = get_movie_genre_id(genre_name)
 
     url = f"{settings.BASE_URL}/discover/movie"
     headers = settings.HEADERS
@@ -100,3 +85,5 @@ def get_movies_by_genre(genre_name):
             return titles[:3]
     return ["No recommendations found."]
 '''
+if __name__ == "__main__":
+    print(get_movies_by_genre("Comedy"))

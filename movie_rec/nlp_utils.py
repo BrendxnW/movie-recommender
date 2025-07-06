@@ -1,7 +1,7 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-from accelerate import init_empty_weights, infer_auto_device_map
+from transformers import pipeline
 import torch
 import random
+import re
 
 
 device = torch.device('cpu')
@@ -27,6 +27,22 @@ class RecommendMovie:
     def __init__(self):
         self.generator = pipeline("text2text-generation", model="google/flan-t5-base")
 
+    @staticmethod
+    def clean_genre_output(genre):
+        genre_synonyms = {
+            "sci fi": "Science Fiction",
+            "scifi": "Science Fiction",
+            "romcom": "Romance",
+            "cartoon": "Animation",
+            "animated": "Animation",
+            "action adventure": "Action",
+        }
+        genre = genre.lower()
+        genre = re.sub(r'[^\w\s]', '', genre)  # Remove punctuation
+        genre = genre.replace("movie", "").replace("film", "").replace("movies", "").replace("films", "")
+        genre = genre.strip()
+        genre = ' '.join(genre.split())  # Normalize whitespace
+        return genre_synonyms.get(genre, genre.title())
 
     def classify_genre(self, user_input):
         prompt = (
@@ -45,5 +61,6 @@ class RecommendMovie:
 
         response = outputs[0]["generated_text"]
         genre_only = response.split("Genre:")[-1].strip()
-        return genre_only
+        genre_cleaned = self.clean_genre_output(genre_only)
+        return genre_cleaned
 

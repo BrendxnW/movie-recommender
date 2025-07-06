@@ -1,5 +1,3 @@
-import requests
-import random
 from django.shortcuts import render
 from .nlp_utils import RecommendMovie, GreetingPrompt
 from .tmdb_API import get_movies_by_genre, InvalidGenreError
