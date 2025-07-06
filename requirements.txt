@@ -1,5 +1,3 @@
-numpy
-pandas
 transformers
 scikit-learn
 sentence-transformers

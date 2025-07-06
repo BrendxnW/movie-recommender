@@ -10,7 +10,7 @@
         }
         body {
             font-family: "Inter", sans-serif;
-            background-color: #f0f2f5; /* Light gray background */
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -100,7 +100,7 @@
     <div id="messages" class="flex flex-col mb-4">
 
       {% if not greeting %}
-        <div class="message-bubble">What can I call you?</div>
+        <div class="message-bubble bg-blue-100 rounded p-3">What can I call you?</div>
         <form id="name-form" method="POST" action="/greet/">
           {% csrf_token %}
           <input type="text" name="name" placeholder="Your name" required class="border p-2 rounded w-full mb-2" />
@@ -113,8 +113,7 @@
       {% endif %}
 
       {% if greeting and not feature %}
-        <div class="message-bubble bg-blue-100 rounded p-3">Which feature would you like to use?</div>
-        <form method="POST" class="flex gap-4">
+          <div class="message-bubble bg-blue-100 rounded p-3">Which feature would you like to use?</div><form method="POST" class="flex gap-4">
           {% csrf_token %}
           <button type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
           <button type="submit" name="feature" value="recommender" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Recommender</button>
@@ -123,7 +122,6 @@
       {% endif %}
 
       {% if feature == "recommender" and not movie_result and not response %}
-        <!-- Show the form only if waiting for input -->
         <div class="message-bubble bg-blue-100 rounded p-3">What kind of movie are you in the mood for?</div>
         <form method="POST" id="movie-form">
           {% csrf_token %}
@@ -134,9 +132,16 @@
       {% endif %}
 
       {% if movie_result %}
-        <div class="message-bubble bg-blue-100 rounded p-3">{{ movie_result }}</div>
-      {% endif %}
+      <div class="message-bubble bg-blue-100 rounded p-3" style="white-space: pre-line;">{{ movie_result }}</div>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
+      </form>
+    {% endif %}
+
     </div>
+
+
   </div>
 </body>
 </html>

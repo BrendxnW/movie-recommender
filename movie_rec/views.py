@@ -1,16 +1,17 @@
+import requests
+import random
 from django.shortcuts import render
 from .nlp_utils import RecommendMovie, GreetingPrompt
+from .tmdb_API import get_movies_by_genre, InvalidGenreError
 
 
 def greet_view(request):
-    # Default context
     context = {
         "greeting": None,
         "feature": None,
         "movie_result": None,
     }
 
-    # Get current step from session, default to greeting
     step = request.session.get('step', 'greeting')
 
     if request.method == "POST":
@@ -21,11 +22,13 @@ def greet_view(request):
                 request.session['step'] = 'greeting'
                 context['greeting'] = None
                 context['feature'] = None
+                context['movie_result'] = None
             elif step == 'recommender':
                 # Go back to feature selection
                 request.session['step'] = 'feature'
                 context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
                 context['feature'] = None
+                context['movie_result'] = None
             elif step == 'greeting':
                 # Already at the first step, maybe flush session
                 request.session.flush()
@@ -34,7 +37,6 @@ def greet_view(request):
                     "feature": None,
                     "movie_result": None,
                 }
-            # Add more elifs for other features if needed
 
         elif "name" in request.POST:
             name = request.POST.get("name", "").capitalize()
@@ -49,23 +51,36 @@ def greet_view(request):
             feature = request.POST.get("feature")
             if feature == 'recommender':
                 request.session['step'] = 'recommender'
-                context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
+                context['greeting'] = None
                 context['feature'] = 'recommender'
             else:
                 request.session['step'] = feature
                 context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
                 context['feature'] = feature
 
+
         elif "movie_prompt" in request.POST:
             user_input = request.POST.get("movie_prompt")
             recommender = RecommendMovie()
             genre = recommender.classify_genre(user_input)
-            context['movie_result'] = f"Sounds like you're in the mood for a {genre} movie.\n Here is a list of movie I recommend!"
+            try:
+                movie_list = get_movies_by_genre(genre)
+                if movie_list and movie_list[0] != "No recommendations found.":
+                    movie_recs = "\n".join(f"- {title}" for title in movie_list)
+                    context['movie_result'] = (
+                        f"Sounds like you're in the mood for a {genre} movie.\n"
+                        f"Here are some movies I recommend:\n{movie_recs}"
+                    )
+                else:
+                    context['movie_result'] = f"Sorry, I couldn't find any good {genre} movies right now."
+            except InvalidGenreError as e:
+                context['movie_result'] = str(e)
+            except Exception as e:
+                context['movie_result'] = "Sorry, something went wrong while fetching recommendations."
             context['feature'] = 'recommender'
-            context['greeting'] = GreetingPrompt(request.session.get('name')).generate_prompt()
+            context['greeting'] = None
 
     else:
-        # On GET, start at greeting
         request.session['step'] = 'greeting'
         context = {
             "greeting": None,

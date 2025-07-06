@@ -20,8 +20,8 @@ def get_movie_genre_id(genre_name):
     """
     Gets the movie id from the given genre
     """
-    url = f"{BASE_URL}/genre/movie/list?language=en"
-    headers = HEADERS
+    url = f"{settings.BASE_URL}/genre/movie/list?language=en"
+    headers = settings.HEADERS
     response = requests.get(url, headers=headers)
 
     genres = response.json().get("genres", [])
@@ -37,8 +37,8 @@ def get_movies_by_genre(genre_name):
     """
     genre_id = get_movie_genre_id(genre_name.title())
 
-    url = f"{BASE_URL}/discover/movie"
-    headers = HEADERS
+    url = f"{settings.BASE_URL}/discover/movie"
+    headers = settings.HEADERS
 
     for _ in range(5):
         params = {
@@ -63,8 +63,8 @@ def get_movies_by_actors(actor_name):
     """
     Gets movie recommendation with the actor in the movie
     """
-    url = f"{BASE_URL}/discover/movie?with_cast={actor_name}&include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
-    headers = HEADERS
+    url = f"{settings.BASE_URL}/discover/movie?with_cast={actor_name}&include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
+    headers = settings.HEADERS
 
     for _ in range(5):
         if actor_name != with_cast:
