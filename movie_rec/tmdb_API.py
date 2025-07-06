@@ -25,10 +25,24 @@ def get_movie_genre_id(genre_name):
     response = requests.get(url, headers=headers)
 
     genres = response.json().get("genres", [])
+    genre_synonyms = {
+        "sci-fi": "Science Fiction",
+        "scifi": "Science Fiction",
+        "romcom": "Romance",
+        "cartoon": "Animation",
+        "animated": "Animation",
+        "action adventure": "Action",
+        # Add more as needed
+    }
+    # Use synonym if available
+    genre_name_clean = genre_name.lower().strip()
+    genre_name_mapped = genre_synonyms.get(genre_name_clean, genre_name_clean)
+
     for genre in genres:
-        if genre["name"].title().strip() == genre_name.title().strip():
+        if genre["name"].lower().strip() == genre_name_mapped:
             return genre["id"]
-    raise InvalidGenreError(f"Unfamiliar with the genre: \"{genre_name}\"")
+    available = ", ".join([g["name"] for g in genres])
+    raise InvalidGenreError(f"Unfamiliar with the genre: \"{genre_name}\". Available genres: {available}")
 
 
 def get_movies_by_genre(genre_name):
@@ -59,7 +73,7 @@ def get_movies_by_genre(genre_name):
     return ["No recommendations found."]
 
 
-def get_movies_by_actors(actor_name):
+'''def get_movies_by_actors(actor_name):
     """
     Gets movie recommendation with the actor in the movie
     """
@@ -85,3 +99,4 @@ def get_movies_by_actors(actor_name):
             random.shuffle(titles)
             return titles[:3]
     return ["No recommendations found."]
+'''
