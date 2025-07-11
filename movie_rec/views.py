@@ -85,6 +85,7 @@ def greet_view(request):
             if selected:
                 context['selected_title'] = selected["title"]
                 context['selected_description'] = selected["description"]
+                context['selected_trailer'] = selected.get("trailer_url")
                 context['movie_options'] = movies
 
     else:

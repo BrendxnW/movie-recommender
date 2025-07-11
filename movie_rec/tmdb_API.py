@@ -29,13 +29,27 @@ def get_movie_genre_id(genre_name):
     raise InvalidGenreError(f"Unfamiliar with the genre: \"{genre_name}\". Available genres: {available}")
 
 
+def get_movie_trailer(movie_id):
+    """
+    Gets the movie trailer from YouTube
+    """
+    url = f"{settings.BASE_URL}/movie/{movie_id}/videos"
+    headers = settings.HEADERS
+    params = {"language": "es-US"}
+    response = requests.get(url, headers=headers, params=params)
+    trailer = response.json().get("results", [])
+    for video in trailer:
+        if video["site"] == "YouTube" and video["type"] == "Trailer":
+            return f"https://www.youtube.com/watch?v={video['key']}"
+    return None
+
+
 def get_movies_by_genre(genre_name):
     """
     Gets movie recommendations for a genre.
     Expects a cleaned genre name.
     """
     genre_id = get_movie_genre_id(genre_name)
-
     url = f"{settings.BASE_URL}/discover/movie"
     headers = settings.HEADERS
 
@@ -55,12 +69,14 @@ def get_movies_by_genre(genre_name):
 
         if len(movies) >= 5:
             random.shuffle(movies)
-            return [
-                {
+            movie_dicts = []
+            for movie in movies[:5]:
+                trailer_url = get_movie_trailer(movie["id"])
+                movie_dicts.append({
                     "title": movie["title"],
-                    "description": movie.get("overview", "No description available.")
-                }
-                for movie in movies[:5]
-            ]
+                    "description": movie.get("overview", "No description available."),
+                    "trailer_url": trailer_url
+                })
+            return movie_dicts
     return ["No recommendations found."]
 
