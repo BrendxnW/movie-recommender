@@ -131,13 +131,33 @@
         </form>
       {% endif %}
 
-      {% if movie_result %}
-      <div class="message-bubble bg-blue-100 rounded p-3" style="white-space: pre-line;">{{ movie_result }}</div>
-      <form method="POST">
-        {% csrf_token %}
-        <button type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
-      </form>
-    {% endif %}
+      {% if movie_options %}
+          <div class="mb-4">
+            <p class="font-semibold">Click a movie to read the description:</p>
+          </div>
+
+          <form method="POST" class="space-y-2">
+            {% csrf_token %}
+            {% for movie in movie_options %}
+              <button type="submit" name="selected_movie" value="{{ movie.title }}"
+                      class="block w-full text-left bg-white border border-gray-300 hover:bg-blue-100 px-4 py-2 rounded shadow-sm">
+                🎬 {{ movie.title }}
+              </button>
+            {% endfor %}
+          </form>
+        {% endif %}
+
+        {% if selected_title %}
+          <div class="message-bubble bg-blue-100 rounded p-3 mt-4">
+            <h2 class="font-bold">{{ selected_title }}</h2>
+            <p class="mt-2">{{ selected_description }}</p>
+          </div>
+          <form method="POST" class="mt-3">
+            {% csrf_token %}
+            <button type="submit" name="action" value="back"
+                    class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
+          </form>
+        {% endif %}
 
     </div>
 

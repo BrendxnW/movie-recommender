@@ -61,22 +61,31 @@ def greet_view(request):
             user_input = request.POST.get("movie_prompt")
             recommender = RecommendMovie()
             genre = recommender.classify_genre(user_input)
+
             try:
                 movie_list = get_movies_by_genre(genre)
-                if movie_list and movie_list[0] != "No recommendations found.":
-                    movie_recs = "\n".join(f"- {title}" for title in movie_list)
-                    context['movie_result'] = (
-                        f"Sounds like you're in the mood for a {genre} movie.\n"
-                        f"Here are some movies I recommend:\n{movie_recs}"
-                    )
+                if movie_list and isinstance(movie_list, list) and isinstance(movie_list[0], dict):
+                    context['movie_options'] = movie_list
+                    request.session['movie_options'] = movie_list
                 else:
                     context['movie_result'] = f"Sorry, I couldn't find any good {genre} movies right now."
             except InvalidGenreError as e:
                 context['movie_result'] = str(e)
             except Exception as e:
                 context['movie_result'] = "Sorry, something went wrong while fetching recommendations."
+
             context['feature'] = 'recommender'
             context['greeting'] = None
+
+        elif "selected_movie" in request.POST:
+            selected_title = request.POST.get("selected_movie")
+            movies = request.session.get("movie_options", [])
+            selected = next((m for m in movies if m["title"] == selected_title), None)
+
+            if selected:
+                context['selected_title'] = selected["title"]
+                context['selected_description'] = selected["description"]
+                context['movie_options'] = movies
 
     else:
         request.session['step'] = 'greeting'
@@ -86,7 +95,6 @@ def greet_view(request):
             "movie_result": None,
         }
 
-    # Set context for template based on step
     step = request.session.get('step', 'greeting')
     if step == 'greeting':
         context['greeting'] = None
