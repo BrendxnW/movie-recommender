@@ -36,12 +36,20 @@ def get_movie_trailer(movie_id):
     url = f"{settings.BASE_URL}/movie/{movie_id}/videos"
     headers = settings.HEADERS
     params = {"language": "es-US"}
-    response = requests.get(url, headers=headers, params=params)
-    trailer = response.json().get("results", [])
-    for video in trailer:
-        if video["site"] == "YouTube" and video["type"] == "Trailer":
-            return f"https://www.youtube.com/watch?v={video['key']}"
-    return None
+
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        trailer = response.json().get("results", [])
+
+        for video in trailer:
+            if video["site"] == "YouTube" and video["type"] == "Trailer":
+                return f"https://www.youtube.com/watch?v={video['key']}"
+        return None
+
+    except Exception as e:
+        print(f"Error fetching trailer for movie {movie_id}: {e}")
+        return None
 
 
 def get_movies_by_genre(genre_name):

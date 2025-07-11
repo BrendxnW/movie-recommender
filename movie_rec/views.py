@@ -64,7 +64,14 @@ def greet_view(request):
 
             try:
                 movie_list = get_movies_by_genre(genre)
-                if movie_list and isinstance(movie_list, list) and isinstance(movie_list[0], dict):
+                if movie_list and isinstance(movie_list, list) and len(movie_list) > 0:
+                    movie_recs = "\n".join(f"- {movie['title']}" for movie in movie_list)
+                    context['movie_result'] = (
+                        f"Sounds like you're in the mood for a {genre} movie.\n"
+                        f"Here are some movies I recommend:"
+                    )
+                    request.session['movie_result'] = context['movie_result']
+
                     context['movie_options'] = movie_list
                     request.session['movie_options'] = movie_list
                 else:
@@ -87,6 +94,9 @@ def greet_view(request):
                 context['selected_description'] = selected["description"]
                 context['selected_trailer'] = selected.get("trailer_url")
                 context['movie_options'] = movies
+                context['feature'] = 'recommender'
+                context['greeting'] = None
+                context['movie_result'] = request.session.get('movie_result')
 
     else:
         request.session['step'] = 'greeting'
