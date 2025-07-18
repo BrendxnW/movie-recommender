@@ -1,19 +1,19 @@
-# Exclude these files
-tmdb_API_test.py
-config.py
-db.sqlite3
+# Ignore static folder
+static/
 
-# Byte-compiled / optimized / DLL files
+# Python cache files
 __pycache__/
 *.py[cod]
-*.so
 
-# Virtual environment
-venv/
+# Virtual environments
+.venv/
 env/
+venv/
 
-# macOS system files
-.DS_Store
+# IDE files
+.idea/
+*.iml
 
-# Environment variables
-.env
+# Others
+*.log
+*.sqlite3

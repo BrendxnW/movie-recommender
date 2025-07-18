@@ -1,1 +1,0 @@
-# Chooses the plot from 2 movies and creates a movie summary from the mashup
