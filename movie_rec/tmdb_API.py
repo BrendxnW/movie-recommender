@@ -52,39 +52,77 @@ def get_movie_trailer(movie_id):
         return None
 
 
-def get_movies_by_genre(genre_name):
+def get_movies_by_genre(genre_names):
     """
     Gets movie recommendations for a genre.
     Expects a cleaned genre name.
     """
-    genre_id = get_movie_genre_id(genre_name)
-    url = f"{settings.BASE_URL}/discover/movie"
-    headers = settings.HEADERS
+    if isinstance(genre_names, str):
+        genre_names = [genre_names]
 
-    for _ in range(5):
-        params = {
-            "with_genres": genre_id,
-            "include_adult": False,
-            "include_video": False,
-            "language": "en-US",
-            "page": random.randint(1, 20),
-            "vote_average.gte": 6.5,
-            "vote_count.gte": 100
-        }
-        response = requests.get(url, headers=headers, params=params)
-        data = response.json()
-        movies = data.get("results", [])
+    all_movies = []
 
-        if len(movies) >= 5:
-            random.shuffle(movies)
-            movie_dicts = []
-            for movie in movies[:5]:
-                trailer_url = get_movie_trailer(movie["id"])
-                movie_dicts.append({
-                    "title": movie["title"],
-                    "description": movie.get("overview", "No description available."),
-                    "trailer_url": trailer_url
-                })
-            return movie_dicts
-    return ["No recommendations found."]
+    for genre_name in genre_names:
+        try:
+            genre_id = get_movie_genre_id(genre_name)
+            url = f"{settings.BASE_URL}/discover/movie"
+            headers = settings.HEADERS
+
+            for _ in range(3):  # Try 3 pages per genre
+                params = {
+                    "with_genres": genre_id,
+                    "include_adult": False,
+                    "include_video": False,
+                    "language": "en-US",
+                    "page": random.randint(1, 20),
+                    "vote_average.gte": 6.5,
+                    "vote_count.gte": 100,
+                    "primary_release_date.gte": "2005-01-01",
+                }
+                response = requests.get(url, headers=headers, params=params)
+                data = response.json()
+                movies = data.get("results", [])
+
+                if movies:
+                    all_movies.extend(movies)
+                    break
+        except InvalidGenreError:
+            continue
+
+    # Remove duplicates and return top 5
+    unique_movies = []
+    seen_titles = set()
+
+    for movie in all_movies:
+        if movie["title"] not in seen_titles:
+            seen_titles.add(movie["title"])
+            unique_movies.append(movie)
+
+    if len(unique_movies) >= 5:
+        random.shuffle(unique_movies)
+        movie_dicts = []
+        for movie in unique_movies[:5]:
+            trailer_url = get_movie_trailer(movie["id"])
+            movie_dicts.append({
+                "title": movie["title"],
+                "description": movie.get("overview", "No description available."),
+                "trailer_url": trailer_url
+            })
+        return movie_dicts
+
+    return ["No Recommended Movies Available"]
+
+
+def get_movie_plot(title, api_key=settings.API_KEY):
+    url = f"https://api.themoviedb.org/3/search/movie?api_key={settings.API_KEY}&query={requests.utils.quote(title)}"
+    response = requests.get(url)
+    data = response.json()
+    if data["results"]:
+        movie_id = data["results"][0]["id"]
+        # Get movie details
+        details_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}"
+        details_response = requests.get(details_url)
+        details = details_response.json()
+        return details.get("overview", "Plot not found.")
+    return "Plot not found."
 
