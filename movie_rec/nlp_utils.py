@@ -2,7 +2,6 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 import re
 from .tmdb_API import *
-import os
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
