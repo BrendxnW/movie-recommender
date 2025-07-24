@@ -2,6 +2,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 import re
 from .tmdb_API import *
+import os
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -123,88 +124,122 @@ class FindMovie:
         return f"Sounds like you're looking for a {find_genre} movie."
 
 
+
 class Remixer:
     """
     Remixes two movie plots into one using a creative text generation model.
     """
-    AVAILABLE_VIBES = [ "funny", "dark", "romantic", "mysterious", "tragic", "action-packed", "wholesome"]
+    AVAILABLE_VIBES = {
+        "funny": "comedy of errors and unexpected humor",
+        "dark": "descent into darkness and moral ambiguity",
+        "romantic": "love story that transcends boundaries",
+        "mysterious": "enigmatic puzzle that defies explanation",
+        "tragic": "heartbreaking journey of loss and redemption",
+        "action-packed": "thrilling adventure with high stakes",
+        "wholesome": "heartwarming tale of hope and friendship"
+    }
 
     @staticmethod
     def get_available_vibes():
         return Remixer.AVAILABLE_VIBES
 
     def __init__(self):
-        # Use a model better suited for creative writing
-        model_name = "mosaicml/mpt-7b-storywriter"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-        if torch.cuda.is_available():
+        try:
+            model_name = "microsoft/phi-2"
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
-                load_in_4bit=True,
-                device_map="auto"
-            )
-        else:
-            # Fallback to normal float32 on CPU (slower, lots of RAM)
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                torch_dtype=torch.float32,
-                device_map=None
+                device_map="auto" if torch.cuda.is_available() else None,
+                torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
             )
 
-            # Set pad token if missing
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.pipeline = pipeline(
+                "text-generation",
+                model=self.model,
+                tokenizer=self.tokenizer,
+                device_map="auto" if torch.cuda.is_available() else None,
+            )
 
-        self.pipeline = pipeline(
-            "text-generation",
-            model=self.model,
-            tokenizer=self.tokenizer,
-            device_map="auto" if torch.cuda.is_available() else None
-        )
+            print("✅ Model loaded successfully")
 
+        except Exception as e:
+            print(f"❌ Error loading model: {e}")
+            print("🔄 Falling back to template-based remixer")
+            self.model = None
+            self.tokenizer = None
+            self.pipeline = None
 
     def plot_mixer(self, plot1, plot2, vibes=None):
-        """
-        Remixes two movie plots into one unique plot with varied outputs
-        """
-        vibe_instruction = ""
-        if vibes:
-            vibe_instruction = "Write the combined story with a " + " and ".join(vibes) + " vibe."
+        try:
+            if not self.pipeline:
+                raise ValueError("Model pipeline is not initialized.")
 
-        # Create multiple different prompt variations
-        prompts = [
-            f"Combine these movie plots into one creative story.{vibe_instruction}\nPlot 1: {plot1}\nPlot 2: {plot2}\nCombined story:",
-            f"Merge these two movie plots.{vibe_instruction}\nFirst plot: {plot1}\nSecond plot: {plot2}\nNew story:",
-            f"Create a new movie by mixing these plots.{vibe_instruction}\n{plot1}\n{plot2}\nResult:",
-            f"Blend these movie plots into one.{vibe_instruction}\nPlot A: {plot1}\nPlot B: {plot2}\nBlended plot:"
-        ]
+            plot1_clean = self._clean_plot(plot1)
+            plot2_clean = self._clean_plot(plot2)
 
-        # Randomly select a prompt
-        prompt = random.choice(prompts)
+            vibe_instruction = ""
+            if vibes:
+                vibe_instruction = f" Write the combined story with a {', '.join(vibes)} vibe."
 
-        # Vary the parameters for more diversity
-        temperature = random.uniform(0.8, 1.2)
-        top_p = random.uniform(0.85, 0.95)
+            prompt = (
+                f"You are a creative screenwriter. Merge the following two movie plots into one unique and original story:\n\n"
+                f"Plot 1: {plot1_clean}\n"
+                f"Plot 2: {plot2_clean}\n\n"
+                f"Create a new storyline that blends characters, settings, or themes from both. "
+                f"Avoid directly copying sentences from the original plots. Surprise the reader with creativity, twists, or emotional depth."
+                f"{vibe_instruction}"
+            )
 
-        outputs = self.pipeline(
-            prompt,
-            max_new_tokens=200,
-            do_sample=True,
-            temperature=temperature,
-            top_p=top_p,
-            top_k=random.randint(30, 70),
-            num_return_sequences=1,
-            repetition_penalty=random.uniform(1.1, 1.3),
-            pad_token_id=self.tokenizer.eos_token_id
-        )
+            outputs = self.pipeline(
+                prompt,
+                max_new_tokens=300,
+                do_sample=True,
+                temperature=0.85,
+                top_p=0.92,
+                top_k=50,
+                num_return_sequences=1,
+                repetition_penalty=1.1,
+                pad_token_id=self.tokenizer.eos_token_id,
+                eos_token_id=self.tokenizer.eos_token_id
+            )
 
-        generated_text = outputs[0]["generated_text"]
+            generated_text = outputs[0]["generated_text"]
+            result = self._clean_generated_text(generated_text, prompt)
 
-        # Remove the original prompt
-        if prompt in generated_text:
-            result = generated_text.replace(prompt, "").strip()
-        else:
-            result = generated_text.strip()
+            return result
 
-        return result
+        except Exception as e:
+            print(f"❌ plot_mixer error: {e}")
+            return "Sorry, an error occurred while remixing the plot. Please try again later."
+
+
+    def _clean_plot(self, plot):
+        """Smart plot cleaning with better truncation"""
+        if not plot or plot == "Plot not found.":
+            return "an unknown story"
+
+        plot = plot.replace("Plot not found.", "").strip()
+
+        # If plot is too long, try to find a good breaking point
+        if len(plot) > 300:
+            # Try to find a complete sentence
+            sentences = plot.split('.')
+            if len(sentences) > 1:
+                # Take first two sentences if they exist
+                first_two = '. '.join(sentences[:2]).strip()
+                if len(first_two) > 50:
+                    return first_two + "."
+
+            # If no good sentence break, take first 300 chars
+            if len(plot) > 300:
+                return plot[:300].strip()
+
+        return plot if plot else "an unknown story"
+
+
+    def _clean_generated_text(self, generated_text, prompt):
+        # Remove prompt from generated text to get only the generated continuation
+        if generated_text.startswith(prompt):
+            generated_text = generated_text[len(prompt):]
+        return generated_text.strip()
+

@@ -16,22 +16,6 @@ def load_imdb_titles():
     if _movie_titles is None:
         csv_path = os.path.join(settings.BASE_DIR, "static", "data", "imdb_titles.csv")
 
-        print(f"🔍 Looking for CSV file at: {csv_path}")
-        if os.path.exists(csv_path):
-            print(f"✅ CSV file found!")
-        else:
-            print(f"❌ CSV file NOT found at: {csv_path}")
-            print(f"📁 Current working directory: {os.getcwd()}")
-            print(f"📁 BASE_DIR: {settings.BASE_DIR}")
-            static_data_dir = os.path.join(settings.BASE_DIR, "static", "data")
-            if os.path.exists(static_data_dir):
-                print(f"📁 Contents of {static_data_dir}:")
-                for file in os.listdir(static_data_dir):
-                    print(f"   - {file}")
-            else:
-                print(f"❌ Directory {static_data_dir} does not exist")
-
-
         try:
             df = pd.read_csv(csv_path)
             title_column = df.columns[0]

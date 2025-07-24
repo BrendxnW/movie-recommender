@@ -1,5 +1,6 @@
 # Ignore static folder
 static/
+models/
 
 # Python cache files
 __pycache__/

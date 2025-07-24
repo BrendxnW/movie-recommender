@@ -6,3 +6,4 @@ python-dotenv
 django
 accelerate
 pandas
+bitsandbytes
