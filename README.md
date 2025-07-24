@@ -1,20 +1,17 @@
-# Movie Summarizer and Recommender
+# 🎬 Movie Summarizer and Recommender
+An intelligent movie recommendation system that takes natural language input from the user (e.g., "I'm in the mood for a feel-good comedy.") and returns relevant movie suggestions with engaging summaries.
 
-An intelligent movie recommendation system that takes natural language input from the user (e.g., 'I'm in the mood for a feel-good comedy with Emma Stone') and returns relevant movie suggestions with engaging summaries. Utilizes Natural Language Processing techniques to analyze user intent and match input to suitable films via The Movie Database (TMDb) API. Also incorporates NumPy and Pandas for efficient data manipulation.
+Built with Natural Language Processing (NLP) techniques to analyze user intent and match it to suitable films via The Movie Database (TMDb) API. The system also incorporates NumPy and Pandas for efficient data handling and processing.
 
-## Installation
+# Features
+- Natural Language Understanding: Parses genre from user input
+- Dynamic Movie Suggestions
+- Intent Detection (WIP): Working on integrating NLP models to classify user intent
+- Efficient Data Processing: Uses NumPy and Pandas for metadata filtering and scoring
 
-Instructions on how to install and set up
+# Future Plans:
+Incorporate PyTorch-based fine-tuning for intent classification
+Integrate feedback-based personalization system
 
-## Usage
-
-How to use the project (examples, commands, screenshots, etc.)
-
-
-## Features
-
-Highlight key features or functionalities
-
-## Contact
-
-LinkedIn:
+# Project Status
+This project is a work in progress. Current focus: expanding NLP capabilities and integrating embedding-based similarity models.
