@@ -24,7 +24,35 @@ class RecommendMovie:
     Classifies movies based on user input.
     """
     def __init__(self):
-        self.generator = pipeline("text2text-generation", model="google/flan-t5-base")
+        self.generator = pipeline("text2text-generation", model="BrendxnW/fine_tune_output")
+
+    def classify_intent(self, user_input):
+
+        prompt = (
+            "You must classify if the user is writing a movie description, or if the user is asking for a movie within a specific genre.\n"
+            "Respond ONLY with the word: 'description' or 'genre'\n\n"
+            f"User: {user_input}\n"
+            "Intent: "
+        )
+
+        outputs = self.generator(
+            prompt,
+            max_new_tokens=50,
+            do_sample=True,
+            temperature=0.7,
+        )
+
+        raw_output = outputs[0]["generated_text"].strip()
+
+        # Extract only the first word (in case it includes more junk)
+        intent = raw_output.split()[0].lower()
+
+        # Sanity check
+        if intent in ['description', 'genre']:
+            return intent
+        else:
+            return "unknown"
+
 
     @staticmethod
     def clean_genre_output(genre):
@@ -86,6 +114,7 @@ class RecommendMovie:
             "IMPORTANT: If the user mentions multiple feelings or genres, list ALL of them.\n"
             "Examples:\n"
             "- 'funny and romantic' → Comedy, Romance\n"
+            "- 'animated and funny' → Animation, Comedy\n"
             "- 'scary and funny' → Horror, Comedy\n"
             "- 'action and adventure' → Action, Adventure\n"
             "- 'I want something funny and romantic' → Comedy, Romance\n"
@@ -107,6 +136,24 @@ class RecommendMovie:
 
         return genre_cleaned
 
+    def recommend_by_description(self, user_input):
+        prompt = (
+            "You are a movie recommender bot.\n"
+            "Suggest a movie based on the description given by the user.\n\n"
+            f"User: {user_input}\n"
+            "Movie suggestion:"
+        )
+
+        outputs = self.generator(
+            prompt,
+            max_new_tokens=15,
+            do_sample=True,
+            temperature=0.7,
+        )
+
+        response = outputs[0]["generated_text"].strip()
+        return response
+
 
 class FindMovie:
     """
@@ -119,9 +166,21 @@ class FindMovie:
         """
         Finds what type of movie the user is looking for based on their answer
         """
-        find_genre = self.recommender.classify_genre(user_input)
-        return f"Sounds like you're looking for a {find_genre} movie."
+        intent = self.recommender.classify_intent(user_input)
 
+        if intent not in ['genre', 'description']:
+            return "Hmm, I'm not sure what you're looking for. Try describing the movie or mentioning a genre."
+
+        if intent == 'genre':
+            find_genre = self.recommender.classify_genre(user_input)
+            return f"Sounds like you're looking for a {find_genre} movie."
+
+        elif intent == 'description':
+            find_movie = self.recommender.recommend_by_description(user_input)
+            return f"I suggest this movie {find_movie}"
+
+        else:
+            return "Sorry, I couldn't figure out what you're looking for."
 
 
 class Remixer:
@@ -159,11 +218,9 @@ class Remixer:
                 device_map="auto" if torch.cuda.is_available() else None,
             )
 
-            print("✅ Model loaded successfully")
-
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
-            print("🔄 Falling back to template-based remixer")
+            print(f" Error loading model: {e}")
+            print("Falling back to template-based remixer")
             self.model = None
             self.tokenizer = None
             self.pipeline = None
@@ -186,6 +243,7 @@ class Remixer:
                 f"Plot 2: {plot2_clean}\n\n"
                 f"Create a new storyline that blends characters, settings, or themes from both. "
                 f"Avoid directly copying sentences from the original plots. Surprise the reader with creativity, twists, or emotional depth."
+                f"Try to complete the storyline within 500 words."
                 f"{vibe_instruction}"
             )
 
@@ -208,7 +266,7 @@ class Remixer:
             return result
 
         except Exception as e:
-            print(f"❌ plot_mixer error: {e}")
+            print(f" plot_mixer error: {e}")
             return "Sorry, an error occurred while remixing the plot. Please try again later."
 
 
@@ -220,7 +278,7 @@ class Remixer:
         plot = plot.replace("Plot not found.", "").strip()
 
         # If plot is too long, try to find a good breaking point
-        if len(plot) > 300:
+        if len(plot) > 500:
             # Try to find a complete sentence
             sentences = plot.split('.')
             if len(sentences) > 1:
@@ -230,8 +288,8 @@ class Remixer:
                     return first_two + "."
 
             # If no good sentence break, take first 300 chars
-            if len(plot) > 300:
-                return plot[:300].strip()
+            if len(plot) > 500:
+                return plot[:500].strip()
 
         return plot if plot else "an unknown story"
 

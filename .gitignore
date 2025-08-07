@@ -1,4 +1,5 @@
-# Ignore static folder
+# Ignore folders
+fine_tune/
 static/
 models/
 
