@@ -19,39 +19,35 @@ class GreetingPrompt:
         return f"{random.choice(hellos)} {self.name}!"
 
 
+class ClassifyIntent:
+    """
+    ...
+    """
+    def __init__(self):
+        self.generator = pipeline("text-classification", model="distilbert/distilbert-base-uncased", device=0)
+
+    def classify_intent(self, user_input):
+        outputs = self.classifier(user_input)
+        label = outputs[0]['label'].lower()  # e.g. "LABEL_0" or "description"
+
+        # If your model uses labels like LABEL_0/LABEL_1, you need a mapping here
+        label_map = {
+            'label_0': 'description',
+            'label_1': 'genre',
+            'description': 'description',
+            'genre': 'genre'
+        }
+
+        intent = label_map.get(label, 'unknown')
+        return intent
+
+
 class RecommendMovie:
     """
     Classifies movies based on user input.
     """
     def __init__(self):
-        self.generator = pipeline("text2text-generation", model="BrendxnW/fine_tune_output")
-
-    def classify_intent(self, user_input):
-
-        prompt = (
-            "You must classify if the user is writing a movie description, or if the user is asking for a movie within a specific genre.\n"
-            "Respond ONLY with the word: 'description' or 'genre'\n\n"
-            f"User: {user_input}\n"
-            "Intent: "
-        )
-
-        outputs = self.generator(
-            prompt,
-            max_new_tokens=50,
-            do_sample=True,
-            temperature=0.7,
-        )
-
-        raw_output = outputs[0]["generated_text"].strip()
-
-        # Extract only the first word (in case it includes more junk)
-        intent = raw_output.split()[0].lower()
-
-        # Sanity check
-        if intent in ['description', 'genre']:
-            return intent
-        else:
-            return "unknown"
+        self.generator = pipeline("text2text-generation", model="BrendxnW/fine_tune_output", device=0)
 
 
     @staticmethod
@@ -161,23 +157,24 @@ class FindMovie:
     """
     def __init__(self):
         self.recommender = RecommendMovie()
+        self.classify = ClassifyIntent
 
     def suggest(self, user_input):
         """
         Finds what type of movie the user is looking for based on their answer
         """
-        intent = self.recommender.classify_intent(user_input)
+        intent = self.classify.classify_intent(user_input)
 
         if intent not in ['genre', 'description']:
             return "Hmm, I'm not sure what you're looking for. Try describing the movie or mentioning a genre."
 
         if intent == 'genre':
             find_genre = self.recommender.classify_genre(user_input)
-            return f"Sounds like you're looking for a {find_genre} movie."
+            return f"You're intent is {intent}.\n Sounds like you're looking for a {find_genre} movie."
 
         elif intent == 'description':
             find_movie = self.recommender.recommend_by_description(user_input)
-            return f"I suggest this movie {find_movie}"
+            return f"You're intent is {intent}.\n I suggest this movie {find_movie}"
 
         else:
             return "Sorry, I couldn't figure out what you're looking for."
