@@ -27,7 +27,7 @@ class ClassifyIntent:
         self.generator = pipeline("text-classification", model="distilbert/distilbert-base-uncased", device=0)
 
     def classify_intent(self, user_input):
-        outputs = self.classifier(user_input)
+        outputs = self.generator(user_input)
         label = outputs[0]['label'].lower()  # e.g. "LABEL_0" or "description"
 
         # If your model uses labels like LABEL_0/LABEL_1, you need a mapping here

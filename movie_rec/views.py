@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer
+from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer, ClassifyIntent
 from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 import os
 import pandas as pd
@@ -44,7 +44,7 @@ def search_movies(request):
         return JsonResponse({
             'results': matching_titles
         })
-    return JsonResponse({'error': 'Invalid requst method'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def greet_view(request):
@@ -170,34 +170,50 @@ def greet_view(request):
                 del request.session['response']
 
             user_input = request.POST.get("movie_prompt")
-            recommender = RecommendMovie()
-            genres = recommender.classify_genre(user_input)
+            intent_finder = ClassifyIntent()
+            intent = intent_finder.classify_intent(user_input)
+            print(f"Classified intent: {intent}")
 
-            # Make sure genres is a list
-            if isinstance(genres, str):
-                genres = [genres]
+            if intent == "genre":
+                recommender = RecommendMovie()
+                genres = recommender.classify_genre(user_input)
 
-            # Store the full list of genres in session
-            request.session['current_genres'] = genres
-            request.session['current_genre'] = ", ".join(genres) if len(genres) > 1 else genres[0]
+                if isinstance(genres, str):
+                    genres = [genres]
 
-            genre_display = ", ".join(genres) if len(genres) > 1 else genres[0]
+                request.session['current_genres'] = genres
+                request.session['current_genre'] = ", ".join(genres) if len(genres) > 1 else genres[0]
 
-            try:
-                movie_list = get_movies_by_genre(genres)
-                if movie_list and isinstance(movie_list, list) and len(movie_list) > 0:
-                    context['movie_result'] = (
-                        f"Sounds like you're in the mood for a {genre_display} movie.\n"
-                        f"Here are some movies I recommend:"
-                    )
-                    context['movie_options'] = movie_list
-                    request.session['movie_options'] = movie_list
-                else:
-                    context['movie_result'] = f"Sorry, I couldn't find any good {genre_display} movies right now."
-            except InvalidGenreError as e:
-                context['movie_result'] = str(e)
-            except Exception as e:
-                context['movie_result'] = "Sorry, something went wrong while fetching recommendations."
+                genre_display = ", ".join(genres) if len(genres) > 1 else genres[0]
+
+                try:
+                    movie_list = get_movies_by_genre(genres)
+                    if movie_list and isinstance(movie_list, list) and len(movie_list) > 0:
+                        context['movie_result'] = (
+                            f"Sounds like you're in the mood for a {genre_display} movie.\n"
+                            f"Here are some movies I recommend:"
+                        )
+                        context['movie_options'] = movie_list
+                        request.session['movie_options'] = movie_list
+                    else:
+                        context['movie_result'] = f"Sorry, I couldn't find any good {genre_display} movies right now."
+                except InvalidGenreError as e:
+                    context['movie_result'] = str(e)
+                except Exception as e:
+                    context['movie_result'] = "Sorry, something went wrong while fetching recommendations."
+
+                context['feature'] = 'recommender'
+                context['greeting'] = None
+
+            elif intent == "description":
+                recommender = RecommendMovie()
+                movie_suggestion = recommender.recommend_by_description(user_input)
+                context['movie_result'] = f"Based on your description, I suggest: {movie_suggestion}"
+                context['movie_options'] = [movie_suggestion]
+                request.session['movie_options'] = [movie_suggestion]
+
+            else:
+                context['movie_result'] = "Sorry, I couldn't understand if you."
 
             context['feature'] = 'recommender'
             context['greeting'] = None
