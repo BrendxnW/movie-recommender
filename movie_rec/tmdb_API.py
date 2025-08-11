@@ -134,13 +134,13 @@ def search_movies_by_description(description):
     all_results = []
 
     params = {
-        "api_key" : settings.TMDB_API_KEY,
+        "api_key" : settings.API_KEY,
         "query" : description,
         "page": 1,
         "language": "en-US",
         "include_adult": False
     }
-    response = requests.get(description, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params)
     data = response.json()
     all_results.extend(data.get("results", []))
     return all_results

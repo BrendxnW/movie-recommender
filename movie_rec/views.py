@@ -212,7 +212,7 @@ def greet_view(request):
                 movie_obj = {"title": movie_suggestion}
                 context['movie_result'] = f"Based on your description, I suggest: {movie_suggestion}"
                 context['movie_options'] = [movie_obj]
-                request.session['movie_options'] = [movie_suggestion]
+                request.session['movie_options'] = [movie_obj]
 
             else:
                 context['movie_result'] = "Sorry, I couldn't understand if you."

@@ -24,7 +24,7 @@ class ClassifyIntent:
     ...
     """
     def __init__(self):
-        self.generator = pipeline("text-classification", model="distilbert/distilbert-base-uncased", device=0)
+        self.generator = pipeline("text-classification", model="BrendxnW/classify-intent-distilbert", device=0)
 
     def classify_intent(self, user_input):
         outputs = self.generator(user_input)
@@ -146,14 +146,22 @@ class FindMovie:
         """
         intent = self.classify.classify_intent(user_input)
 
+        print(f"Classified intent before if: {intent}")
+
         if intent not in ['genre', 'description']:
             return "Hmm, I'm not sure what you're looking for. Try describing the movie or mentioning a genre."
 
         if intent == 'genre':
+
+            print("Running genre branch")
+
             find_genre = self.recommender.classify_genre(user_input)
             return f"You're intent is {intent}.\n Sounds like you're looking for a {find_genre} movie."
 
         elif intent == 'description':
+
+            print("Running Description branch")
+
             find_movie = search_movies_by_description(user_input)
             if not find_movie:
                 return "Sorry, I couldn't find any movies matching that description"
