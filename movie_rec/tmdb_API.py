@@ -114,15 +114,33 @@ def get_movies_by_genre(genre_names):
 
 
 def get_movie_plot(title, api_key=settings.API_KEY):
-    url = f"https://api.themoviedb.org/3/search/movie?api_key={settings.API_KEY}&query={requests.utils.quote(title)}"
+    url = f"{settings.BASE_URL}/search/movie?api_key={settings.API_KEY}&query={requests.utils.quote(title)}"
     response = requests.get(url)
     data = response.json()
     if data["results"]:
         movie_id = data["results"][0]["id"]
         # Get movie details
-        details_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}"
+        details_url = f"{settings.BASE_URL}/movie/{movie_id}?api_key={api_key}"
         details_response = requests.get(details_url)
         details = details_response.json()
         return details.get("overview", "Plot not found.")
     return "Plot not found."
 
+
+def search_movies_by_description(description):
+    url = f"{settings.BASE_URL}/search/movie"
+    headers = settings.HEADERS
+
+    all_results = []
+
+    params = {
+        "api_key" : settings.TMDB_API_KEY,
+        "query" : description,
+        "page": 1,
+        "language": "en-US",
+        "include_adult": False
+    }
+    response = requests.get(description, headers=headers, params=params)
+    data = response.json()
+    all_results.extend(data.get("results", []))
+    return all_results

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer, ClassifyIntent
+from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer, ClassifyIntent, FindMovie
 from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 import os
 import pandas as pd
@@ -206,10 +206,12 @@ def greet_view(request):
                 context['greeting'] = None
 
             elif intent == "description":
-                recommender = RecommendMovie()
-                movie_suggestion = recommender.recommend_by_description(user_input)
+                recommender = FindMovie()
+                movie_suggestion = recommender.suggest(user_input)
+
+                movie_obj = {"title": movie_suggestion}
                 context['movie_result'] = f"Based on your description, I suggest: {movie_suggestion}"
-                context['movie_options'] = [movie_suggestion]
+                context['movie_options'] = [movie_obj]
                 request.session['movie_options'] = [movie_suggestion]
 
             else:

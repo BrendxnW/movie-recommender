@@ -28,9 +28,8 @@ class ClassifyIntent:
 
     def classify_intent(self, user_input):
         outputs = self.generator(user_input)
-        label = outputs[0]['label'].lower()  # e.g. "LABEL_0" or "description"
+        label = outputs[0]['label'].lower()
 
-        # If your model uses labels like LABEL_0/LABEL_1, you need a mapping here
         label_map = {
             'label_0': 'description',
             'label_1': 'genre',
@@ -132,24 +131,6 @@ class RecommendMovie:
 
         return genre_cleaned
 
-    def recommend_by_description(self, user_input):
-        prompt = (
-            "You are a movie recommender bot.\n"
-            "Suggest a movie based on the description given by the user.\n\n"
-            f"User: {user_input}\n"
-            "Movie suggestion:"
-        )
-
-        outputs = self.generator(
-            prompt,
-            max_new_tokens=15,
-            do_sample=True,
-            temperature=0.7,
-        )
-
-        response = outputs[0]["generated_text"].strip()
-        return response
-
 
 class FindMovie:
     """
@@ -157,7 +138,7 @@ class FindMovie:
     """
     def __init__(self):
         self.recommender = RecommendMovie()
-        self.classify = ClassifyIntent
+        self.classify = ClassifyIntent()
 
     def suggest(self, user_input):
         """
@@ -173,8 +154,12 @@ class FindMovie:
             return f"You're intent is {intent}.\n Sounds like you're looking for a {find_genre} movie."
 
         elif intent == 'description':
-            find_movie = self.recommender.recommend_by_description(user_input)
-            return f"You're intent is {intent}.\n I suggest this movie {find_movie}"
+            find_movie = search_movies_by_description(user_input)
+            if not find_movie:
+                return "Sorry, I couldn't find any movies matching that description"
+            else:
+                titles = [movie['title'] for movie in find_movie[:5]]
+                return f"You're intent is {intent}.\nI suggest this movie I suggest based on your description:\n- " + "\n- ".join(titles)
 
         else:
             return "Sorry, I couldn't figure out what you're looking for."
