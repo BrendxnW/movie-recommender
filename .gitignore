@@ -19,3 +19,6 @@ venv/
 # Others
 *.log
 *.sqlite3
+
+# Python files
+local_data.py

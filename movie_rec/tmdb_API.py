@@ -1,6 +1,8 @@
 import requests
 import random
 from django.conf import settings
+from local_data import keyword_to_movies, movie_id_to_info
+
 
 class InvalidGenreError(Exception):
     """Custom error if there is an invalid genre"""
@@ -127,20 +129,9 @@ def get_movie_plot(title, api_key=settings.API_KEY):
     return "Plot not found."
 
 
-def search_movies_by_description(description):
-    url = f"{settings.BASE_URL}/search/movie"
-    headers = settings.HEADERS
-
-    all_results = []
-
-    params = {
-        "api_key" : settings.API_KEY,
-        "query" : description,
-        "page": 1,
-        "language": "en-US",
-        "include_adult": False
-    }
-    response = requests.get(url, headers=headers, params=params)
-    data = response.json()
-    all_results.extend(data.get("results", []))
-    return all_results
+def search_movies_by_description(keywords):
+    matched_movies = set()
+    for kw in keywords:
+        if kw.lower() in keyword_to_movies:
+            matched_movies.update(keyword_to_movies[kw.lower()])
+    return [movie_id_to_info[mid] for mid in matched_movies]

@@ -165,10 +165,15 @@ class FindMovie:
 
             kw_model = KeyBERT()
 
-            keyword = kw_model.extract_keywords(user_input, keyphrase_ngram_range=(1,2), stop_words='english', top_n=5)
+            keywords = kw_model.extract_keywords(user_input, keyphrase_ngram_range=(1,2), stop_words='english', top_n=5)
+            keywords_only = [kw[0] for kw in keywords]
+            search_query = " ".join(keywords_only)
 
+            print(f"keywords: {keywords}")
+            print(f"keywords_only: {keywords_only}")
+            print(f"search_query: {search_query}")
 
-            find_movie = search_movies_by_description(keyword)
+            find_movie = search_movies_by_description(search_query)
 
             if not find_movie:
                 return "Sorry, I couldn't find any movies matching that description"
