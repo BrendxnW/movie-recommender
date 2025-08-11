@@ -7,3 +7,4 @@ django
 accelerate
 pandas
 bitsandbytes
+keybert

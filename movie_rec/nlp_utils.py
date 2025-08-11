@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 import re
+from keybert import KeyBERT
 from .tmdb_API import *
 
 
@@ -162,7 +163,13 @@ class FindMovie:
 
             print("Running Description branch")
 
-            find_movie = search_movies_by_description(user_input)
+            kw_model = KeyBERT()
+
+            keyword = kw_model.extract_keywords(user_input, keyphrase_ngram_range=(1,2), stop_words='english', top_n=5)
+
+
+            find_movie = search_movies_by_description(keyword)
+
             if not find_movie:
                 return "Sorry, I couldn't find any movies matching that description"
             else:
