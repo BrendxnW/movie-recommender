@@ -152,7 +152,7 @@
           <div class="message-bubble bg-blue-100 rounded p-3">What kind of movie are you in the mood for?</div>
           <form method="POST" id="movie-form">
             {% csrf_token %}
-            <input type="text" name="movie_prompt" id="movie-prompt" placeholder="Enter a genre" class="border p-2 rounded w-full mb-2" required autocomplete="off"/>
+            <input type="text" name="movie_prompt" id="movie-prompt" placeholder="Enter a genre or description" class="border p-2 rounded w-full mb-2" required autocomplete="off"/>
             <div class="flex gap-2">
               <button type="submit" name="action" value="back"
                       class="submit-button bg-indigo-600 text-white px-4 py-2 rounded"
@@ -163,10 +163,26 @@
           </form>
         {% endif %}
 
-      <!-- The 5 movie recommended output -->
-      {% if movie_result %}
-        <div class="message-bubble bg-blue-100 rounded p-3" style="white-space: pre-line;">{{ movie_result }}</div>
-      {% endif %}
+        <!-- Show 'Get 5 More Movies' only if user picked a genre -->
+        {% if current_genre %}
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" name="action" value="more_movies" class="submit-button bg-green-600 text-white px-4 py-2 rounded">
+            Get 5 More Movies
+          </button>
+        </form>
+        {% endif %}
+
+        <!-- Show 'Reroll' only if reroll list has movies -->
+        {% if reroll_available %}
+        <form method="POST">
+          {% csrf_token %}
+          <button type="submit" name="action" value="reroll" class="submit-button bg-green-600 text-white px-4 py-2 rounded">
+            Reroll
+          </button>
+        </form>
+        {% endif %}
+
 
       <!-- Allows user to read the description of the movie -->
       {% if movie_options %}

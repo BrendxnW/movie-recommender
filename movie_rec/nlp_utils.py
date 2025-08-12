@@ -140,49 +140,40 @@ class FindMovie:
     def __init__(self):
         self.recommender = RecommendMovie()
         self.classify = ClassifyIntent()
+        self.kw_model = KeyBERT()
 
     def suggest(self, user_input):
-        """
-        Finds what type of movie the user is looking for based on their answer
-        """
         intent = self.classify.classify_intent(user_input)
-
         print(f"Classified intent before if: {intent}")
 
         if intent not in ['genre', 'description']:
             return "Hmm, I'm not sure what you're looking for. Try describing the movie or mentioning a genre."
 
         if intent == 'genre':
-
             print("Running genre branch")
-
             find_genre = self.recommender.classify_genre(user_input)
-            return f"You're intent is {intent}.\n Sounds like you're looking for a {find_genre} movie."
+            return f"Sounds like you're looking for a {find_genre} movie."
 
         elif intent == 'description':
-
             print("Running Description branch")
-
-            kw_model = KeyBERT()
-
-            keywords = kw_model.extract_keywords(user_input, keyphrase_ngram_range=(1,2), stop_words='english', top_n=5)
+            keywords = self.kw_model.extract_keywords(user_input, keyphrase_ngram_range=(1, 2), stop_words='english',
+                                                      top_n=5)
             keywords_only = [kw[0] for kw in keywords]
-            search_query = " ".join(keywords_only)
+
+            if not keywords_only:
+                return []  # return empty list instead of string
 
             print(f"keywords: {keywords}")
             print(f"keywords_only: {keywords_only}")
-            print(f"search_query: {search_query}")
 
-            find_movie = search_movies_by_description(search_query)
+            for kw in keywords_only:
+                find_movie = search_movies_by_description(kw)
+                if find_movie:
+                    return find_movie[:5]
 
-            if not find_movie:
-                return "Sorry, I couldn't find any movies matching that description"
-            else:
-                titles = [movie['title'] for movie in find_movie[:5]]
-                return f"You're intent is {intent}.\nI suggest this movie I suggest based on your description:\n- " + "\n- ".join(titles)
 
-        else:
-            return "Sorry, I couldn't figure out what you're looking for."
+            return []
+        return "Sorry, I couldn't find any movies with that description."
 
 
 class Remixer:
@@ -244,14 +235,16 @@ class Remixer:
                 f"Plot 1: {plot1_clean}\n"
                 f"Plot 2: {plot2_clean}\n\n"
                 f"Create a new storyline that blends characters, settings, or themes from both. "
-                f"Avoid directly copying sentences from the original plots. Surprise the reader with creativity, twists, or emotional depth."
-                f"Try to complete the storyline within 500 words."
-                f"{vibe_instruction}"
+                f"Avoid directly copying sentences from the original plots. Surprise the reader with creativity, twists, or emotional depth.\n\n"
+                f"Try to complete the storyline within 400 words."
+                f"{vibe_instruction}\n\n"
+                f"Finish the story completely."
+                f"Start story here: "
             )
 
             outputs = self.pipeline(
                 prompt,
-                max_new_tokens=300,
+                max_new_tokens=400,
                 do_sample=True,
                 temperature=0.85,
                 top_p=0.92,
@@ -280,7 +273,7 @@ class Remixer:
         plot = plot.replace("Plot not found.", "").strip()
 
         # If plot is too long, try to find a good breaking point
-        if len(plot) > 500:
+        if len(plot) > 400:
             # Try to find a complete sentence
             sentences = plot.split('.')
             if len(sentences) > 1:

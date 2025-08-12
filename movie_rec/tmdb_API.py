@@ -1,7 +1,7 @@
 import requests
 import random
 from django.conf import settings
-from local_data import keyword_to_movies, movie_id_to_info
+from movie_rec.fine_tune.local_data import keyword_to_movies, movie_id_to_info
 
 
 class InvalidGenreError(Exception):
@@ -130,8 +130,10 @@ def get_movie_plot(title, api_key=settings.API_KEY):
 
 
 def search_movies_by_description(keywords):
+    kw_lower = keywords.lower()
     matched_movies = set()
-    for kw in keywords:
-        if kw.lower() in keyword_to_movies:
-            matched_movies.update(keyword_to_movies[kw.lower()])
-    return [movie_id_to_info[mid] for mid in matched_movies]
+
+    if kw_lower in keyword_to_movies:
+        matched_movies.update(keyword_to_movies[kw_lower])
+
+    return [movie_id_to_info[mid] for mid in matched_movies if mid in movie_id_to_info]
