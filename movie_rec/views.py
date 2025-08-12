@@ -205,23 +205,23 @@ def greet_view(request):
                 context['feature'] = 'recommender'
                 context['greeting'] = None
 
+
             elif intent == "description":
                 recommender = FindMovie()
                 movie_suggestions = recommender.suggest(user_input)
                 if movie_suggestions:
-                    request.session['reroll_movies'] = movie_suggestions[1:]  # save for reroll
+                    request.session['reroll_movies'] = movie_suggestions[1:]  # save the rest for reroll
                     request.session.modified = True
-                    first_movie = movie_suggestions[0]
-                    context['movie_options'] = [first_movie]
-                    request.session['movie_options'] = [first_movie]
-                    context['movie_result'] = f"I suggest this movie based on your description:\n- {first_movie['title']}"
-
+                    # Prepare the list of 5 movies for display
+                    context['movie_options'] = movie_suggestions[:5]
+                    request.session['movie_options'] = movie_suggestions[:5]
+                    # Build a string listing the 5 movies nicely
+                    titles_list = "\n- ".join([movie['title'] for movie in movie_suggestions[:5]])
+                    context['movie_result'] = f"I suggest these movies based on your description:\n- {titles_list}"
                 else:
                     context['movie_result'] = "Sorry, couldn't find any matches."
-
             else:
                 context['movie_result'] = "Sorry, I couldn't understand that."
-
             context['feature'] = 'recommender'
             context['greeting'] = None
 
@@ -232,9 +232,9 @@ def greet_view(request):
             selected = next((m for m in movies if m["title"] == selected_title), None)
 
             if selected:
-                tmdb_details = get_movie_plot(selected.get("id") or selected_title)
+                description = selected.get('overview') or get_movie_plot(selected_title)
                 context['selected_title'] = selected["title"]
-                context['selected_description'] = selected.get("description", "No description available.")
+                context['selected_description'] = description
                 context['selected_trailer'] = selected.get("trailer_url")
                 context['movie_options'] = movies
                 context['movie_result'] = request.session.get('movie_result')

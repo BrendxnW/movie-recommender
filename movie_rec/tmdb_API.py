@@ -132,8 +132,18 @@ def get_movie_plot(title, api_key=settings.API_KEY):
 def search_movies_by_description(keywords):
     kw_lower = keywords.lower()
     matched_movies = set()
-
     if kw_lower in keyword_to_movies:
         matched_movies.update(keyword_to_movies[kw_lower])
 
-    return [movie_id_to_info[mid] for mid in matched_movies if mid in movie_id_to_info]
+    movies_with_plots = []
+    for mid in matched_movies:
+        if mid in movie_id_to_info:
+            movie_info = movie_id_to_info[mid].copy()  # avoid mutating original
+
+            # Fetch TMDB plot using the movie title
+            plot = get_movie_plot(movie_info['title'])
+            movie_info['overview'] = plot
+
+            movies_with_plots.append(movie_info)
+
+    return movies_with_plots
