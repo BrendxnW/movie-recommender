@@ -1,0 +1,24 @@
+# Ignore folders
+fine_tune/
+static/
+models/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# IDE files
+.idea/
+*.iml
+
+# Others
+*.log
+*.sqlite3
+
+# Python files
+local_data.py

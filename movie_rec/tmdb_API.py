@@ -70,7 +70,7 @@ def get_movies_by_genre(genre_names):
             url = f"{settings.BASE_URL}/discover/movie"
             headers = settings.HEADERS
 
-            for _ in range(3):  # Try 3 pages per genre
+            for _ in range(3):
                 params = {
                     "with_genres": genre_id,
                     "include_adult": False,
@@ -91,7 +91,7 @@ def get_movies_by_genre(genre_names):
         except InvalidGenreError:
             continue
 
-    # Remove duplicates and return top 5
+
     unique_movies = []
     seen_titles = set()
 
@@ -138,9 +138,8 @@ def search_movies_by_description(keywords):
     movies_with_plots = []
     for mid in matched_movies:
         if mid in movie_id_to_info:
-            movie_info = movie_id_to_info[mid].copy()  # avoid mutating original
+            movie_info = movie_id_to_info[mid].copy()
 
-            # Fetch TMDB plot using the movie title
             plot = get_movie_plot(movie_info['title'])
             movie_info['overview'] = plot
 

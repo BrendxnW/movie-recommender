@@ -161,7 +161,7 @@ class FindMovie:
             keywords_only = [kw[0] for kw in keywords]
 
             if not keywords_only:
-                return []  # return empty list instead of string
+                return []
 
             print(f"keywords: {keywords}")
             print(f"keywords_only: {keywords_only}")
@@ -274,15 +274,12 @@ class Remixer:
 
         # If plot is too long, try to find a good breaking point
         if len(plot) > 400:
-            # Try to find a complete sentence
             sentences = plot.split('.')
             if len(sentences) > 1:
-                # Take first two sentences if they exist
                 first_two = '. '.join(sentences[:2]).strip()
                 if len(first_two) > 50:
                     return first_two + "."
 
-            # If no good sentence break, take first 300 chars
             if len(plot) > 500:
                 return plot[:500].strip()
 
@@ -290,7 +287,6 @@ class Remixer:
 
 
     def _clean_generated_text(self, generated_text, prompt):
-        # Remove prompt from generated text to get only the generated continuation
         if generated_text.startswith(prompt):
             generated_text = generated_text[len(prompt):]
         return generated_text.strip()

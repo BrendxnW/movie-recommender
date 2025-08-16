@@ -32,14 +32,12 @@ def search_movies(request):
 
         if len(query) < 2:
             return JsonResponse({'results': []})
-        # Load all titles
         all_titles = load_imdb_titles()
 
-        # Filter titles that contain the query (case-insensitive)
         matching_titles = [
                               title for title in all_titles
                               if query.lower() in title.lower()
-                          ][:20]  # Limit to top 20 results
+                          ][:20]
 
         return JsonResponse({
             'results': matching_titles
@@ -65,7 +63,7 @@ def greet_view(request):
     if request.method == "POST":
         if request.POST.get("action") == "back":
             if step == 'feature':
-                # Go back to greeting (name input)
+                # Go back to greeting
                 request.session['step'] = 'greeting'
                 context['greeting'] = None
                 context['feature'] = None
