@@ -8,3 +8,6 @@ Built with Natural Language Processing (NLP) techniques to analyze user intent a
 - Dynamic Movie Suggestions
 - Intent Detection (WIP): Working on integrating NLP models to classify user intent
 - Efficient Data Processing: Uses NumPy and Pandas for metadata filtering and scoring
+
+# 🎬 Demo Video
+https://github.com/user-attachments/assets/53067306-7e60-412a-9611-d368ef266ad2
