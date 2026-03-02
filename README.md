@@ -4,9 +4,12 @@
 <strong>Natural-language movie recommendations with summaries</strong>
 </p>
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/Status-Educational-green" />
-
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+  </a>
 </p>
 
 ## Table of Contents
