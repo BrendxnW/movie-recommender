@@ -1,7 +1,7 @@
 import requests
 import random
 from django.conf import settings
-from movie_rec.fine_tune.local_data import keyword_to_movies, movie_id_to_info
+from movie_rec.local_data import keyword_to_movies, movie_id_to_info
 
 
 class InvalidGenreError(Exception):
