@@ -200,7 +200,7 @@ class Remixer:
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
-                device_map="auto" if torch.cuda.is_available() else None,
+                device_map=device,
                 torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
             )
 
@@ -208,7 +208,7 @@ class Remixer:
                 "text-generation",
                 model=self.model,
                 tokenizer=self.tokenizer,
-                device_map="auto" if torch.cuda.is_available() else None,
+                device_map=device,
             )
 
         except Exception as e:

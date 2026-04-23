@@ -11,6 +11,7 @@ __pycache__/
 .venv/
 env/
 venv/
+.env
 
 # IDE files
 .idea/
@@ -20,5 +21,4 @@ venv/
 *.log
 *.sqlite3
 
-# Python files
-local_data.py
+description_data.py
