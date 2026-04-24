@@ -4,8 +4,15 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-keywords_path = os.path.join(BASE_DIR, "fine_tune", "keywords.csv")
-movies_path = os.path.join(BASE_DIR, "fine_tune", "movies_metadata.csv")
+keywords_path = os.getenv(
+    "KEYWORDS_PATH",
+    os.path.join(BASE_DIR, "fine_tune", "data", "keywords.csv")
+)
+
+movies_path = os.getenv(
+    "MOVIES_PATH",
+    os.path.join(BASE_DIR, "fine_tune", "data", "movies_metadata.csv")
+)
 
 keywords_df = pd.read_csv(keywords_path)
 movies_df = pd.read_csv(movies_path, low_memory=False)
