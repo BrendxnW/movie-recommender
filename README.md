@@ -62,57 +62,20 @@ docker run -p 8000:8000 movie-app
 ```
 
 ## API
-### Classifying Intent
-#### `ClassifyIntent`
-**Location:** `movie_rec/nlp_utils.py`
+### Data Sources
 
-**Description:**  
-Uses a text classification model to identify the intent of the user input to find relevant movie genres and descriptions that match.
+- Movie data retrieved using the IMDB API
+- Dataset from Kaggle:
+  - [The Movies Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset)
+  - `movies_metadata.csv`
+  - `keywords.csv`
 
-**Constructor**
-```python
-ClassifyIntent(user_input)
-...
-```
+### Machine Learning
 
-### Recommending Movie
-#### `RecommendMovie`
-**Location:** `movie_rec/nlp_utils.py`
+- Built using Hugging Face Transformers
+- Utilizes text generation to remix and combine movie plots
+- Model leverages semantic understanding of movie descriptions and keywords
 
-**Description:**  
-Uses a text classifiction model to match the user's input with a movie genre.
-
-**Constructor**
-```python
-RecommendMovie(genre)
-...
-```
-
-### Finding Movie
-#### `FindMovie`
-**Location:** `movie_rec/nlp_utils.py`
-
-**Description:**  
-Finds relevant movies based on the user's description.
-
-**Constructor**
-```python
-FindMovie(user_input)
-...
-```
-
-### Remixing Plot
-#### `RemixPlot`
-**Location:** `movie_rec/nlp_utils.py`
-
-**Description:**  
-Uses Microsoft's small language model (SLM) "microsoft/phi-2" to remix two movie plots into one.
-
-**Constructor**
-```python
-Remixer(plot1, plot2, vibes=None)
-...
-```
 
 ## Contributing
 
