@@ -1,7 +1,8 @@
-<h1 align="center"> Movie Summarizer and Recommender </h1>
+<h1 align="center"> Movie Recommender and Remixer</h1>
 
 <p align="center">
-<strong>Natural-language movie recommendations with summaries</strong>
+<strong>Natural-language movie recommendations with summaries</strong><br>
+<strong>Link to app: http://3.142.164.130:8000</strong>
 </p>
 <p align="center">
   <a href="https://www.python.org/">
@@ -44,13 +45,20 @@ https://github.com/user-attachments/assets/53067306-7e60-412a-9611-d368ef266ad2
 ```bash
 git clone https://github.com/yourname/movie-recommender.git  
 cd movie-recommender
+python -m venv .venv
+source .venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
 ## Usage
 **Local (Development)**
 ```bash
-python manage.py runserver
+python manage.py runserver localhost:8000
+```
+**Docker**
+```bash
+docker build -t movie-app .
+docker run -p 8000:8000 movie-app
 ```
 
 ## API
