@@ -14,7 +14,10 @@ _movie_titles = None
 def load_imdb_titles():
     global _movie_titles
     if _movie_titles is None:
-        csv_path = os.path.join(settings.BASE_DIR, "static", "data", "filtered_movies.csv")
+        csv_path = os.getenv(
+            "FILTERED_MOVIES_PATH",
+            os.path.join("fine_tune", "data", "filtered_movies.csv")
+        )
 
         try:
             df = pd.read_csv(csv_path)

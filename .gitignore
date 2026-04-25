@@ -1,6 +1,5 @@
 # Ignore folders
 fine_tune/
-static/
 models/
 
 # Python cache files
