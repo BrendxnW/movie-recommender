@@ -63,6 +63,12 @@ def register(request):
 def home(request):
     return(render(request,"home.html"))
 
+def recommender(request):
+    return(render(request,"recommender.html"))
+
+def remixer(request):
+    return(render(request,"remixer.html"))
+
 
 def greet_view(request):
     context = {

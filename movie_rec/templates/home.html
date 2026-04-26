@@ -2,16 +2,28 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
-
 <div class="chat-container">
-    Which feature would you like to use?
+    <h1 class="text-xl font-bold mb-4 text-center">
+        Hi! I am your Movie ChatBot
+    </h1>
+
+    <div class="message-bubble bg-blue-100 rounded p-3">
+        Which feature would you like to use?
+    </div>
+
+    <form method="POST" class="flex gap-4">
+        {% csrf_token %}
+        <a href="{% url 'login' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
+            ⬅ Back
+        </a>
+        <a href="{% url 'recommender' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
+            Recommender
+        </a>
+        <a href="{% url 'remixer' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
+            Remixer
+        </a>
+    </form>
 </div>
-<form method="POST" class="flex gap-4">
-    {% csrf_token %}
-    <button type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
-    <button type="submit" name="feature" value="recommender" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded" >Recommender</button>
-    <button type="submit" name="feature" value="remixer" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Remixer</button>
-</form>
 
 
 {% endblock %}
