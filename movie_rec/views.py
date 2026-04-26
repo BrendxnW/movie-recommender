@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer, ClassifyIntent, FindMovie
 from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 import os
@@ -46,6 +46,22 @@ def search_movies(request):
             'results': matching_titles
         })
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def login(request):
+
+
+    return(render(request, "login.html"))
+
+
+def register(request):
+
+
+    return render(request, "register.html")
+
+
+def home(request):
+    return(render(request,"home.html"))
 
 
 def greet_view(request):
@@ -301,7 +317,5 @@ def greet_view(request):
         context['feature'] = 'remixer'
         context['imdb_movies'] = load_imdb_titles()
 
-    return render(request, "remixer.html", {
-    "feature": "remixer",
-})
+    return render(request, "login.html", context)
 
