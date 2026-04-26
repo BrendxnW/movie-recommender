@@ -61,7 +61,7 @@ def register(request):
 
 
 def home(request):
-    
+
     return render(request,"home.html")
 
 def recommender(request):
@@ -72,11 +72,20 @@ def recommender(request):
         "selected_title": None,
     }
 
+    chat_history = request.session.get("chat_history", [])
+
     if request.method == "POST":
         action = request.POST.get("action")
 
-        if action == "submit":
+
+        if action == "submit_prompt":
             user_input = request.POST.get("movie_prompt")
+
+            chat_history.append({
+                "sender": "user",
+                "message": user_input
+            })
+
             intent_finder = ClassifyIntent()
             intent = intent_finder.classify_intent(user_input)
             print(f"Classified intent: {intent}")
@@ -100,6 +109,7 @@ def recommender(request):
                             f"Sounds like you're in the mood for a {genre_display} movie.\n"
                             f"Here are some movies I recommend:"
                         )
+
                         context['movie_options'] = movie_list
                         request.session['movie_options'] = movie_list
                     else:
@@ -149,6 +159,15 @@ def recommender(request):
                 context['greeting'] = None
 
 
+            chat_history.append({
+                "sender": "bot",
+                "message": context['movie_result']
+            })
+
+            request.session["chat_history"] = chat_history
+            request.session.modified = True
+
+
         elif request.POST.get("action") == "more_movies":
             current_genre = request.session.get('current_genre', [])
             if current_genre:
@@ -175,12 +194,24 @@ def recommender(request):
                 context['movie_result'] = f"How about this one instead?\n- {next_movie['title']}"
             else:
                 context['movie_result'] = "No more rerolls available!"
-            movie_prompt = request.POST.get("movie_prompt")
 
-            movie_result = "result"
+        
+        chat_history.append({
+            "sender": "bot",
+            "message": context['movie_result']
+        })
 
-            context["movie_result"] = movie_result
+        request.session["chat_history"] = chat_history
+        request.session.modified = True
 
+        if action == "clear_chat":
+            request.session["chat_history"] = []
+            request.session.pop("movie_options", None)
+            request.session.pop("reroll_movies", None)
+            request.session.pop("current_genre", None)
+            request.session.modified = True
+
+    context["chat_history"] = chat_history
     return render(request, "recommender.html", context)
 
 
