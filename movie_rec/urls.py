@@ -7,7 +7,4 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("recommender/", views.recommender, name="recommender"),
     path("remixer/", views.remixer, name="remixer"),
-
-    path("greet/", views.greet_view, name="greet"),
-    path('search-movies/', views.search_movies, name='search_movies'),
 ]

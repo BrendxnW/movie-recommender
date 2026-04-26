@@ -1,12 +1,9 @@
-from django.shortcuts import render, redirect
-from .nlp_utils import RecommendMovie, GreetingPrompt, Remixer, ClassifyIntent, FindMovie
-from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 import os
 import pandas as pd
-from django.conf import settings
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
+from django.shortcuts import render, redirect
+from .nlp_utils import RecommendMovie, Remixer, ClassifyIntent, FindMovie
+from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 
 
 _movie_titles = None
@@ -27,25 +24,6 @@ def load_imdb_titles():
             print(f"Error loading movie titles: {e}")
             _movie_titles = []
     return _movie_titles
-
-@csrf_exempt
-def search_movies(request):
-    if request.method == 'GET':
-        query = request.GET.get('q', '').strip()
-
-        if len(query) < 2:
-            return JsonResponse({'results': []})
-        all_titles = load_imdb_titles()
-
-        matching_titles = [
-                              title for title in all_titles
-                              if query.lower() in title.lower()
-                          ][:20]
-
-        return JsonResponse({
-            'results': matching_titles
-        })
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def login(request):

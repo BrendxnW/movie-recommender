@@ -7,17 +7,6 @@ from .tmdb_API import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-class GreetingPrompt:
-    """
-    Testing another version of greeting prompt
-    """
-
-    def __init__(self, name):
-        self.name = name
-
-    def generate_prompt(self):
-        hellos = ['Hi,', 'Hello,', 'Howdy,', 'Hey there,', 'Heyo,']
-        return f"{random.choice(hellos)} {self.name}!"
 
 
 class ClassifyIntent:
