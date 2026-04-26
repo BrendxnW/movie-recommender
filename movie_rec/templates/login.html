@@ -1,13 +1,8 @@
-{% load static %}
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Movie Recommender</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/styles/css' %}">
-</head>
+{% block content %}
+
 
 <body>
   <div id="app" class="chat-container">
@@ -20,7 +15,7 @@
       <p>Don't have an account? <a href="#" class="text-blue-500 underline" text-center>Register</a></p>
     </form>
   </div>
-
+{% endblock %}
 
   <!-- Greeting and gets the user's name -->
   <div id="app" class="chat-container">
