@@ -51,7 +51,7 @@ def search_movies(request):
 def login(request):
 
 
-    return(render(request, "login.html"))
+    return render(request, "login.html")
 
 
 def register(request):
@@ -61,13 +61,20 @@ def register(request):
 
 
 def home(request):
-    return(render(request,"home.html"))
+    return render(request,"home.html")
 
 def recommender(request):
-    return(render(request,"recommender.html"))
+    context = {
+        "feature": "recommender",
+        "movie_result": None,
+        "response": None,
+        "selected_title": None,
+    }
+    return render(request, "recommender.html", context)
 
 def remixer(request):
-    return(render(request,"remixer.html"))
+    context = {"feature": "remixer"}
+    return render(request,"remixer.html", context)
 
 
 def greet_view(request):
