@@ -159,11 +159,6 @@ def recommender(request):
                 context['greeting'] = None
 
 
-            chat_history.append({
-                "sender": "bot",
-                "message": context['movie_result']
-            })
-
             request.session["chat_history"] = chat_history
             request.session.modified = True
 
@@ -411,7 +406,7 @@ def greet_view(request):
                 context['selected_description'] = description
                 context['selected_trailer'] = selected.get("trailer_url")
                 context['movie_options'] = movies
-                context['movie_result'] = request.session.get('movie_result')
+                #context['movie_result'] = request.session.get('movie_result')
                 context['feature'] = 'recommender'
                 context['greeting'] = None
 
