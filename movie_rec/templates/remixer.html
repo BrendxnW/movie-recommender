@@ -12,29 +12,33 @@
   <form method="POST" class="space-y-4" id="remix-form">
     {% csrf_token %}
     <div class="relative">
-
-      <label for="movie1">
-        Movie 1:
-      </label>
-
-      <input type="text" id="movie1" name="movie1"
-              class="movie-autocomplete-input w-full border p-2 rounded"
-              placeholder="Type a movie name..."
-              autocomplete="off" required>
-
+      <div class="message-bubble">
+        <label for="movie1">
+          What is the first movie?
+        </label>
+      </div>
+      <div class="user-message-bubble">
+        <input type="text" id="movie1" name="movie1"
+                class="movie-autocomplete-input"
+                placeholder="Type a movie name..."
+                autocomplete="off" required>
+      </div>
       <ul id="movie1-suggestions" class="autocomplete-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto hidden"></ul>
     </div>
 
     <div class="relative">
-      <label for="movie2">
-        Movie 2:
-      </label>
-
+      <div class="message-bubble">
+        <label for="movie2">
+          What is the second movie?
+        </label>
+      </div>
+      <div class="user-message-bubble">
       <input type="text" id="movie2" name="movie2"
-              class="movie-autocomplete-input w-full border p-2 rounded"
+              class="movie-autocomplete-input w-full"
               placeholder="Type a movie name..."
               autocomplete="off" required>
-
+      </div>
+      
       <ul id="movie2-suggestions" class="autocomplete-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto hidden"></ul>
     </div>
 

@@ -61,6 +61,7 @@ def register(request):
 
 
 def home(request):
+    
     return render(request,"home.html")
 
 def recommender(request):
@@ -70,7 +71,119 @@ def recommender(request):
         "response": None,
         "selected_title": None,
     }
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "submit":
+            user_input = request.POST.get("movie_prompt")
+            intent_finder = ClassifyIntent()
+            intent = intent_finder.classify_intent(user_input)
+            print(f"Classified intent: {intent}")
+
+            if intent == "genre":
+                recommender = RecommendMovie()
+                genres = recommender.classify_genre(user_input)
+
+                if isinstance(genres, str):
+                    genres = [genres]
+
+                request.session['current_genres'] = genres
+                request.session['current_genre'] = ", ".join(genres) if len(genres) > 1 else genres[0]
+
+                genre_display = ", ".join(genres) if len(genres) > 1 else genres[0]
+
+                try:
+                    movie_list = get_movies_by_genre(genres)
+                    if movie_list and isinstance(movie_list, list) and len(movie_list) > 0:
+                        context['movie_result'] = (
+                            f"Sounds like you're in the mood for a {genre_display} movie.\n"
+                            f"Here are some movies I recommend:"
+                        )
+                        context['movie_options'] = movie_list
+                        request.session['movie_options'] = movie_list
+                    else:
+                        context['movie_result'] = f"Sorry, I couldn't find any good {genre_display} movies right now."
+                except InvalidGenreError as e:
+                    context['movie_result'] = str(e)
+                except Exception as e:
+                    context['movie_result'] = "Sorry, something went wrong while fetching recommendations."
+
+                context['feature'] = 'recommender'
+                context['greeting'] = None
+
+
+            elif intent == "description":
+                recommender = FindMovie()
+                movie_suggestions = recommender.suggest(user_input)
+                if movie_suggestions:
+                    request.session['reroll_movies'] = movie_suggestions[1:]  # save the rest for reroll
+                    request.session.modified = True
+                    # Prepare the list of 5 movies for display
+                    context['movie_options'] = movie_suggestions[:5]
+                    request.session['movie_options'] = movie_suggestions[:5]
+                    # Build a string listing the 5 movies nicely
+                    titles_list = "\n- ".join([movie['title'] for movie in movie_suggestions[:5]])
+                    context['movie_result'] = f"I suggest these movies based on your description:\n- {titles_list}"
+                else:
+                    context['movie_result'] = "Sorry, couldn't find any matches."
+            else:
+                context['movie_result'] = "Sorry, I couldn't understand that."
+            context['feature'] = 'recommender'
+            context['greeting'] = None
+
+
+        elif "selected_movie" in request.POST:
+            selected_title = request.POST.get("selected_movie")
+            movies = request.session.get("movie_options", [])
+            selected = next((m for m in movies if m["title"] == selected_title), None)
+
+            if selected:
+                description = selected.get('overview') or get_movie_plot(selected_title)
+                context['selected_title'] = selected["title"]
+                context['selected_description'] = description
+                context['selected_trailer'] = selected.get("trailer_url")
+                context['movie_options'] = movies
+                context['movie_result'] = request.session.get('movie_result')
+                context['feature'] = 'recommender'
+                context['greeting'] = None
+
+
+        elif request.POST.get("action") == "more_movies":
+            current_genre = request.session.get('current_genre', [])
+            if current_genre:
+                try:
+                    movie_list = get_movies_by_genre(current_genre)
+                    if movie_list:
+                        context['movie_result'] = f"Here are 5 more {current_genre} movies:"
+                        context['movie_options'] = movie_list
+                        request.session['movie_options'] = movie_list
+                    else:
+                        context['movie_result'] = f"Sorry, couldn't find any more {current_genre} movies right now."
+                except Exception:
+                    context['movie_result'] = "Sorry, something went wrong while fetching more recommendations."
+
+
+        elif request.POST.get("action") == "reroll":
+            reroll_list = request.session.get('reroll_movies', [])
+            if reroll_list:
+                next_movie = reroll_list.pop(0)
+                request.session['reroll_movies'] = reroll_list
+                request.session.modified = True
+                context['movie_options'] = [next_movie]
+                request.session['movie_options'] = [next_movie]
+                context['movie_result'] = f"How about this one instead?\n- {next_movie['title']}"
+            else:
+                context['movie_result'] = "No more rerolls available!"
+            movie_prompt = request.POST.get("movie_prompt")
+
+            movie_result = "result"
+
+            context["movie_result"] = movie_result
+
     return render(request, "recommender.html", context)
+
+
 
 def remixer(request):
     context = {"feature": "remixer"}
