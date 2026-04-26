@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<!-- Selected the Remixer function -->
+      {% if feature == "remixer" %}
+          <div class="message-bubble bg-blue-100 rounded p-3">
+            <p>Enter Two Movies Below</p>
+            <form method="POST" class="space-y-4" id="remix-form">
+              {% csrf_token %}
+              <div class="relative">
+                <label for="movie1">Movie 1:</label>
+                <input type="text" id="movie1" name="movie1"
+                       class="movie-autocomplete-input w-full border p-2 rounded"
+                       placeholder="Type a movie name..."
+                       autocomplete="off" required>
+                <ul id="movie1-suggestions" class="autocomplete-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto hidden"></ul>
+              </div>
+              <div class="relative">
+                <label for="movie2">Movie 2:</label>
+                <input type="text" id="movie2" name="movie2"
+                       class="movie-autocomplete-input w-full border p-2 rounded"
+                       placeholder="Type a movie name..."
+                       autocomplete="off" required>
+                <ul id="movie2-suggestions" class="autocomplete-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto hidden"></ul>
+              </div>
+
+              <!-- Vibe checkboxes -->
+              <div class="mb-2">
+                <label class="block font-semibold mb-1">Choose up to two vibes:</label>
+                <div id="vibe-checkboxes" class="flex flex-wrap gap-2">
+                  <label><input type="checkbox" name="vibe" value="funny" class="vibe-checkbox"> Funny</label>
+                  <label><input type="checkbox" name="vibe" value="dark" class="vibe-checkbox"> Dark</label>
+                  <label><input type="checkbox" name="vibe" value="romantic" class="vibe-checkbox"> Romantic</label>
+                  <label><input type="checkbox" name="vibe" value="mysterious" class="vibe-checkbox"> Mysterious</label>
+                  <label><input type="checkbox" name="vibe" value="tragic" class="vibe-checkbox"> Tragic</label>
+                  <label><input type="checkbox" name="vibe" value="action-packed" class="vibe-checkbox"> Action-Packed</label>
+                  <label><input type="checkbox" name="vibe" value="wholesome" class="vibe-checkbox"> Wholesome</label>
+                </div>
+                <small class="text-gray-500">You can select up to two vibes.</small>
+              </div>
+              <div class="flex gap-2">
+                <button type="submit" name="action" value="back"
+                  onclick="document.getElementById('movie1').removeAttribute('required'); document.getElementById('movie2').removeAttribute('required');"
+                  class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
+                <button type="submit" name="action" value="submit_remix"
+                  class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Remix</button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+
+      <!-- Remix loading screen -->
+      <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+          <div class="flex flex-col items-center">
+            <svg class="animate-spin h-12 w-12 text-white mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <span class="text-white text-lg font-semibold">Remixing...</span>
+          </div>
+        </div>
+
+      <!-- Remixed results -->
+    {% if response and feature == "remixer" %}
+        <div class="message-bubble bg-blue-100 rounded p-3">
+            <h3 class="font-bold mb-2">🎬 Remixed Plot:</h3>
+            <p>{{ response }}</p>
+        </div>
+    {% endif %}
+    </div>
+
+
+
+{% endblock %}

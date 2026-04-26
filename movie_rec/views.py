@@ -301,5 +301,7 @@ def greet_view(request):
         context['feature'] = 'remixer'
         context['imdb_movies'] = load_imdb_titles()
 
-    return render(request, "login.html", context)
+    return render(request, "remixer.html", {
+    "feature": "remixer",
+})
 

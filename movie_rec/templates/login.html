@@ -1,8 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Register{% endblock %}
-
+{% block title %}Login{% endblock %}
 {% block content %}
-
 
 <body>
   <div id="app" class="chat-container">
@@ -29,114 +27,7 @@
       </h1>
     {% endif %}
 
-    <!-- User's input to get name -->
-    <div id="messages" class="flex flex-col mb-4">
-      {% if not greeting %}
-        <div class="message-bubble bg-blue-100 rounded p-3">What can I call you?</div>
-        <form id="name-form" method="POST" action="/greet/">
-          {% csrf_token %}
-          <input type="text" name="name" placeholder="Your name" required class="border p-2 rounded w-full mb-2" autocomplete="off" />
-          <button type="submit" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
-        </form>
-      {% endif %}
 
-      <!-- Feature's page -->
-      {% if greeting and not feature %}
-          <div class="message-bubble bg-blue-100 rounded p-3">Which feature would you like to use?</div><form method="POST" class="flex gap-4">
-          {% csrf_token %}
-          <button type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back</button>
-          <button type="submit" name="feature" value="recommender" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded" >Recommender</button>
-          <button type="submit" name="feature" value="remixer" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Remixer</button>
-        </form>
-      {% endif %}
-
-      <!-- The movie recommender feature -->
-      {% if feature == "recommender" and not movie_result and not response and not selected_title %}
-          <div class="message-bubble bg-blue-100 rounded p-3">What kind of movie are you in the mood for?</div>
-          <form method="POST" id="movie-form">
-            {% csrf_token %}
-            <input type="text" name="movie_prompt" id="movie-prompt" placeholder="Enter a genre or description" class="border p-2 rounded w-full mb-2" required autocomplete="off"/>
-            <div class="flex gap-2">
-              <button type="submit" name="action" value="back"
-                      class="submit-button bg-indigo-600 text-white px-4 py-2 rounded"
-                      onclick="document.getElementById('movie-prompt').value=''; document.getElementById('movie-prompt').removeAttribute('required');">⬅ Back</button>
-              <button type="submit" name="action" value="submit_prompt"
-                      class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">Submit</button>
-            </div>
-          </form>
-        {% endif %}
-
-        
-
-        <!-- Show 'Get 5 More Movies' only if user picked a genre -->
-        {% if current_genre %}
-        <form method="POST">
-          {% csrf_token %}
-          <button type="submit" name="action" value="more_movies" class="submit-button bg-green-600 text-white px-4 py-2 rounded">
-            Get 5 More Movies
-          </button>
-        </form>
-        {% endif %}
-
-        <!-- Show 'Reroll' only if reroll list has movies -->
-        {% if reroll_available %}
-        <form method="POST">
-          {% csrf_token %}
-          <button type="submit" name="action" value="reroll" class="submit-button bg-green-600 text-white px-4 py-2 rounded">
-            Reroll
-          </button>
-        </form>
-        {% endif %}
-
-
-      <!-- Allows user to read the description of the movie -->
-      {% if movie_options %}
-          <div class="mb-4">
-            <p class="font-semibold">Click a movie to read the description:</p>
-          </div>
-
-          <form method="POST" class="space-y-2">
-            {% csrf_token %}
-            {% for movie in movie_options %}
-              <button type="submit" name="selected_movie" value="{{ movie.title }}"
-                      class="block w-full text-left bg-white border border-gray-300 hover:bg-blue-100 px-4 py-2 rounded shadow-sm">
-                🎬 {{ movie.title }}
-              </button>
-            {% endfor %}
-          </form>
-
-        <!-- Back button -->
-        <form method="POST" class="mt-4">
-            {% csrf_token %}
-            <button type="submit" name="action" value="back"
-                class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">⬅ Back
-            </button>
-
-          <!-- Gets 5 more movie of the same genre -->
-            <button type="submit" name="action" value="more_movies"
-                    class="submit-button bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Get 5 More Movies
-            </button>
-        </form>
-        {% endif %}
-
-      <!-- Gets the trailer for the movie selected -->
-        {% if selected_title %}
-          <div class="message-bubble bg-blue-100 rounded p-3 mt-4">
-            <h2 class="font-bold">{{ selected_title }}</h2>
-            <p class="mt-2">{{ selected_description }}</p>
-
-            {% if selected_trailer %}
-              <div class="mt-4">
-                <a href="{{ selected_trailer }}" target="_blank" class="text-blue-600 underline">Watch Trailer</a>
-                <iframe width="100%" height="315"
-                        src="https://www.youtube.com/embed/{{ selected_trailer|cut:'https://www.youtube.com/watch?v=' }}"
-                        frameborder="0" allowfullscreen>
-                </iframe>
-              </div>
-            {% endif %}
-          </div>
-        {% endif %}
-    </div>
 
       <!-- Selected the Remixer function -->
       {% if feature == "remixer" %}
