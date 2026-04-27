@@ -29,6 +29,21 @@ def load_imdb_titles():
     return _movie_titles
 
 
+def search_movies(request):
+    query = request.GET.get("q", "").strip().lower()
+
+    if len(query) < 2:
+        return JsonResponse({"results": []})
+
+    titles = load_imdb_titles()
+    matches = [
+        title for title in titles
+        if query in str(title).lower()
+    ][:10]
+
+    return JsonResponse({"results": matches})
+
+
 def login(request):
     return render(request, "login.html")
 

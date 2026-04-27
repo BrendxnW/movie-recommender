@@ -98,17 +98,26 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
         </svg>
-        <span class="text-white text-lg font-semibold">Remixing...</span>
+        <span class="text-white text-lg font-semibold">
+          Remixing...
+        </span>
       </div>
     </div>
 
     <!-- Remixed results -->
   {% if response and feature == "remixer" %}
-    <div class="message-bubble bg-blue-100 rounded p-3">
-      <h3 class="font-bold mb-2">🎬 Remixed Plot:</h3>
-      <p>{{ response }}</p>
+    <div class="message-bubble">
+      <h3 class="font-bold mb-2">
+        🎬 Remixed Plot:
+      </h3>
+      <p>
+        {{ response }}
+      </p>
     </div>
   {% endif %}
   </div>
+
+  <script src="{% static 'js/auto_complete.js' %}"></script>
+  <script src="{% static 'js/loading.js' %}"></script>
 
 {% endblock %}
