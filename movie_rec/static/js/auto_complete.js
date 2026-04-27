@@ -1,0 +1,135 @@
+function setupAutocomplete(inputId) {
+    const input = document.getElementById(inputId);
+    const suggestions = document.getElementById(inputId + '-suggestions');
+
+    if (!input || !suggestions) {
+    console.error('Could not find input or suggestions for:', inputId);
+    return;
+    }
+
+    let activeIndex = -1;
+    let currentResults = [];
+    let timeoutId = null;
+
+    input.addEventListener('input', function() {
+    const query = this.value.trim();
+
+    // Clear previous timeout
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+
+    if (query.length < 2) {
+        suggestions.classList.add('hidden');
+        return;
+    }
+
+    // Add debouncing to prevent too many requests
+    timeoutId = setTimeout(() => {
+        console.log('Searching for:', query); // Debug log
+
+        fetch(`/search-movies/?q=${encodeURIComponent(query)}`)
+        .then(response => {
+            if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Search results:', data); // Debug log
+            currentResults = data.results || [];
+            suggestions.innerHTML = '';
+
+            if (currentResults.length > 0) {
+            currentResults.forEach((title, idx) => {
+                const li = document.createElement('li');
+                li.textContent = title;
+                li.className = 'hover:bg-gray-100 transition-colors';
+
+                // FIXED: Changed from mousedown to click
+                li.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                input.value = title;
+                suggestions.classList.add('hidden');
+                activeIndex = -1;
+                });
+
+                suggestions.appendChild(li);
+            });
+            suggestions.classList.remove('hidden');
+            activeIndex = -1;
+            } else {
+            suggestions.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching suggestions:', error);
+            suggestions.classList.add('hidden');
+        });
+    }, 300); // 300ms debounce
+    });
+
+    input.addEventListener('keydown', function(e) {
+    const items = suggestions.querySelectorAll('li');
+    if (suggestions.classList.contains('hidden') || items.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % items.length;
+        updateActive();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + items.length) % items.length;
+        updateActive();
+    } else if (e.key === 'Enter') {
+        if (activeIndex >= 0 && activeIndex < items.length) {
+        e.preventDefault();
+        input.value = items[activeIndex].textContent;
+        suggestions.classList.add('hidden');
+        activeIndex = -1;
+        }
+    } else if (e.key === 'Escape') {
+        suggestions.classList.add('hidden');
+        activeIndex = -1;
+    }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+        suggestions.classList.add('hidden');
+        activeIndex = -1;
+    }
+    });
+
+    // Close suggestions when input loses focus
+    input.addEventListener('blur', function() {
+    // Use setTimeout to allow click events on suggestions to fire first
+    setTimeout(() => {
+        if (!suggestions.contains(document.activeElement)) {
+        suggestions.classList.add('hidden');
+        activeIndex = -1;
+        }
+    }, 100);
+    });
+
+    function updateActive() {
+    const items = suggestions.querySelectorAll('li');
+    items.forEach((li, idx) => {
+        li.classList.toggle('active', idx === activeIndex);
+    });
+
+    // Scroll to active item if needed
+    if (activeIndex >= 0 && activeIndex < items.length) {
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+    }
+}
+
+// Initialize autocomplete when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Setting up autocomplete...'); // Debug log
+    setupAutocomplete('movie1');
+    setupAutocomplete('movie2');
+});

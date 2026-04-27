@@ -3,6 +3,7 @@ import pandas as pd
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
+from django.http import JsonResponse
 from .nlp_utils import RecommendMovie, Remixer, ClassifyIntent, FindMovie
 from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
 from .forms import CustomUserCreationForm
@@ -38,7 +39,18 @@ def register(request):
 
         if form.is_valid():
             form.save()
+
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"success": True})
+
             return redirect("login")
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({
+                "success": False,
+                "errors": form.errors.get_json_data()
+            })
+
     else:
         form = CustomUserCreationForm()
 

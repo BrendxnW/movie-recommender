@@ -1,23 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 
+{% load static %}
 {% block content %}
 
 <div id="register-form" class="chat-container">
     <form method="POST" action="">
         {% csrf_token %}
-        {{ form.errors }}
         <h2 class="text-xl font-bold mb-4 text-center">
             Register
         </h2>
 
-        <input type="text" class="border p-2 rounded w-full mb-2" name="name" placeholder="Name" required>
-        <input type="email" class="border p-2 rounded w-full mb-2" name="username" placeholder="Email" required>
-        <input type="date" class="border p-2 rounded w-full mb-2" name="date" placeholder="Birthday" required>
-        <input type="password" class="border p-2 rounded w-full mb-2" name="password1" placeholder="Password" required>
-        <input type="password" class="border p-2 rounded w-full mb-2" name="password2" placeholder="Confirm Password" required>
+            <input type="text" class="border p-2 rounded w-full mb-2" name="username" placeholder="Username" required>
+            {% for error in form.username.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+  
+            <input type="text" class="border p-2 rounded w-full mb-2" name="first_name" placeholder="First Name" required>
+            {% for error in form.first_name.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
 
-        
+            <input type="text" class="border p-2 rounded w-full mb-2" name="last_name" placeholder="Last Name" required>
+            {% for error in form.last_name.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+
+            <input type="email" class="border p-2 rounded w-full mb-2" name="email" placeholder="Email" required>
+            {% for error in form.email.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+
+            <input type="password" class="border p-2 rounded w-full mb-2" name="password1" placeholder="Password" required>
+            {% for error in form.password1.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+
+            <input type="password" class="border p-2 rounded w-full mb-2" name="password2" placeholder="Confirm Password" required>
+            {% for error in form.password2.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+
         <a href="{% url 'login' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
             ⬅ Back
         </a>
@@ -26,5 +49,5 @@
         </button>
     </form>
 </div>
-
+<script src="{% static 'js/prevent_refresh.js' %}"></script>
 {% endblock %}

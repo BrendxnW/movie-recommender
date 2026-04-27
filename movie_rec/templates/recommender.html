@@ -29,7 +29,7 @@
       <form method="POST" id="movie-form">
         {% csrf_token %}
         <div class="user-message-bubble ">
-          <input type="text" name="movie_prompt" id="movie-prompt" placeholder="Enter a genre" required autocomplete="off"/>
+          <textarea name="movie_prompt" class="auto-expand text-base leading-6 bg-transparent border-none outline-none resize-none overflow-hidden w-full" placeholder="Enter a genre" required autocomplete="off"></textarea>
         </div>
         <div class="flex gap-2">
 
