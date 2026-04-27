@@ -96,13 +96,17 @@ def register(request):
 
 
 def home(request):
+    context = {
+        "username": request.user.username if request.user.is_authenticated else None
+    }
+
     if request.method == "POST":
         action = request.POST.get("action")
 
         if action == "sign_out":
             auth_logout(request)
             return redirect("login")
-    return render(request,"home.html")
+    return render(request,  "home.html", context)
 
 def recommender(request):
     context = {
