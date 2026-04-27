@@ -41,9 +41,12 @@
                 <p class="text-red-500 text-sm">{{ error }}</p>
             {% endfor %}
 
-        <a href="{% url 'login' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
+        <button type="submit" name="action" value="login" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded" formnovalidate>
+            <a href="{% url 'login' %}">
             ⬅ Back
-        </a>
+            </a>
+        </button>
+
         <button type="submit" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
             Register
         </button>

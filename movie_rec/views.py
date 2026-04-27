@@ -52,11 +52,11 @@ def login(request):
     context = {"error": None}
 
     if request.method == "POST":
-        email = request.POST.get("email", "").strip()
+        username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
 
         try:
-            user_obj = User.objects.get(email__iexact=email)
+            user_obj = User.objects.get(username=username)
         except User.DoesNotExist:
             user_obj = None
 
@@ -66,7 +66,7 @@ def login(request):
                 auth_login(request, user)
                 return redirect("home")
 
-        context["error"] = "Invalid email or password."
+        context["error"] = "Invalid username or password."
 
     return render(request, "login.html", context)
 
