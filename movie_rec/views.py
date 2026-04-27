@@ -2,7 +2,8 @@ import os
 import pandas as pd
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .nlp_utils import RecommendMovie, Remixer, ClassifyIntent, FindMovie
 from .tmdb_API import get_movies_by_genre, InvalidGenreError, get_movie_plot
@@ -45,7 +46,29 @@ def search_movies(request):
 
 
 def login(request):
-    return render(request, "login.html")
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    context = {"error": None}
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
+
+        try:
+            user_obj = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            user_obj = None
+
+        if user_obj is not None:
+            user = authenticate(request, username=user_obj.username, password=password)
+            if user is not None:
+                auth_login(request, user)
+                return redirect("home")
+
+        context["error"] = "Invalid email or password."
+
+    return render(request, "login.html", context)
 
 
 def register(request):
@@ -73,6 +96,12 @@ def register(request):
 
 
 def home(request):
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "sign_out":
+            auth_logout(request)
+            return redirect("login")
     return render(request,"home.html")
 
 def recommender(request):
@@ -81,12 +110,28 @@ def recommender(request):
         "movie_result": None,
         "response": None,
         "selected_title": None,
+        "current_genre": request.session.get("current_genre"),
+        "reroll_available": bool(request.session.get("reroll_movies")),
     }
 
     chat_history = request.session.get("chat_history", [])
 
     if request.method == "POST":
         action = request.POST.get("action")
+
+        if action == "clear_chat":
+            request.session["chat_history"] = []
+            request.session.pop("movie_options", None)
+            request.session.pop("reroll_movies", None)
+            request.session.pop("current_genre", None)
+            request.session.pop("current_genres", None)
+            request.session.pop("movie_result", None)
+            request.session.modified = True
+
+            context["chat_history"] = []
+            context["current_genre"] = None
+            context["reroll_available"] = False
+            return render(request, "recommender.html", context)
 
 
         if action == "submit_prompt":
@@ -153,6 +198,8 @@ def recommender(request):
             context['feature'] = 'recommender'
             context['greeting'] = None
 
+            request.session['movie_result'] = context['movie_result']
+
 
         elif "selected_movie" in request.POST:
             selected_title = request.POST.get("selected_movie")
@@ -165,7 +212,6 @@ def recommender(request):
                 context['selected_description'] = description
                 context['selected_trailer'] = selected.get("trailer_url")
                 context['movie_options'] = movies
-                context['movie_result'] = request.session.get('movie_result')
                 context['feature'] = 'recommender'
                 context['greeting'] = None
 
@@ -187,6 +233,7 @@ def recommender(request):
                         context['movie_result'] = f"Sorry, couldn't find any more {current_genre} movies right now."
                 except Exception:
                     context['movie_result'] = "Sorry, something went wrong while fetching more recommendations."
+                request.session['movie_result'] = context['movie_result']
 
 
         elif request.POST.get("action") == "reroll":
@@ -200,24 +247,20 @@ def recommender(request):
                 context['movie_result'] = f"How about this one instead?\n- {next_movie['title']}"
             else:
                 context['movie_result'] = "No more rerolls available!"
+            request.session['movie_result'] = context['movie_result']
 
-        
-        chat_history.append({
-            "sender": "bot",
-            "message": context['movie_result']
-        })
+        if context['movie_result']:
+            chat_history.append({
+                "sender": "bot",
+                "message": context['movie_result']
+            })
 
         request.session["chat_history"] = chat_history
         request.session.modified = True
 
-        if action == "clear_chat":
-            request.session["chat_history"] = []
-            request.session.pop("movie_options", None)
-            request.session.pop("reroll_movies", None)
-            request.session.pop("current_genre", None)
-            request.session.modified = True
-
     context["chat_history"] = chat_history
+    context["current_genre"] = request.session.get("current_genre")
+    context["reroll_available"] = bool(request.session.get("reroll_movies"))
     return render(request, "recommender.html", context)
 
 

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Recommender{% endblock %}
 
+{% load static %}
 {% block content %}
   <div class="chat-container">
     <h1 class="text-xl font-bold mb-4 text-center">
@@ -8,33 +9,73 @@
     </h1>
 
     {% if feature == "recommender" %}
-      <div class="message-bubble">
-        What kind of movie are you in the mood for?
+      <div class="chat-thread">
+        <div class="message-bubble">
+          What kind of movie are you in the mood for?
+        </div>
+
+        {% if chat_history %}
+          {% for chat in chat_history %}
+            {% if chat.sender == "user" %}
+              <div class="user-message-bubble">
+                {{ chat.message }}
+              </div>
+            {% else %}
+              <div class="message-bubble">
+                {{ chat.message|linebreaksbr }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        {% if movie_options %}
+          <div class="message-bubble">
+            Click a movie to read the description:
+          </div>
+
+          <form method="POST" class="space-y-2">
+            {% csrf_token %}
+            {% for movie in movie_options %}
+              <div class="movie-choice">
+                <button type="submit" name="selected_movie" value="{{ movie.title }}" class="block w-full text-left bg-white border border-gray-300 hover:bg-blue-100 px-4 py-2 rounded shadow-sm">
+                  {{ movie.title }}
+                </button>
+
+                {% if selected_title == movie.title %}
+                  <div class="message-bubble movie-expanded-description">
+                    <h2 class="font-bold">{{ selected_title }}</h2>
+                    <p class="mt-2">{{ selected_description }}</p>
+
+                    {% if selected_trailer %}
+                      <div class="mt-4">
+                        <a href="{{ selected_trailer }}" target="_blank" class="text-blue-600 underline">
+                          Watch Trailer
+                        </a>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </form>
+        {% endif %}
       </div>
 
-    {% if chat_history %}
-      {% for chat in chat_history %}
-        {% if chat.sender == "user" %}
-          <div class="user-message-bubble">
-            {{ chat.message }}
-          </div>
-        {% else %}
-          <div class="message-bubble">
-            {{ chat.message }}
-          </div>
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-
-      <form method="POST" id="movie-form">
+      <form method="POST" id="movie-form" class="mt-4">
         {% csrf_token %}
-        <div class="user-message-bubble ">
-          <textarea name="movie_prompt" class="auto-expand text-base leading-6 bg-transparent border-none outline-none resize-none overflow-hidden w-full" placeholder="Enter a genre" required autocomplete="off"></textarea>
+        <div class="chat-input-shell">
+          <textarea
+            name="movie_prompt"
+            rows="1"
+            class="user-message-bubble auto-expand chat-textarea resize-none border-none"
+            placeholder="Enter a genre"
+            required
+            autocomplete="off"></textarea>
         </div>
-        <div class="flex gap-2">
 
-          <a href="{% url 'home' %}" type="submit" name="action" value="back" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
-            ⬅ Back
+        <div class="flex gap-2 flex-wrap">
+          <a href="{% url 'home' %}" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
+            Back
           </a>
 
           <button type="submit" name="action" value="submit_prompt" class="submit-button bg-indigo-600 text-white px-4 py-2 rounded">
@@ -44,13 +85,10 @@
           <button type="submit" name="action" value="clear_chat" formnovalidate class="submit-button bg-red-500 text-white px-4 py-2 rounded">
             Clear Chat
           </button>
-
         </div>
       </form>
-
     {% endif %}
 
-      <!-- Show 'Get 5 More Movies' only if user picked a genre -->
     {% if current_genre %}
       <form method="POST">
         {% csrf_token %}
@@ -60,56 +98,15 @@
       </form>
     {% endif %}
 
-      <!-- Show 'Reroll' only if reroll list has movies -->
     {% if reroll_available %}
       <form method="POST">
-      {% csrf_token %}
+        {% csrf_token %}
         <button type="submit" name="action" value="reroll" class="submit-button bg-green-600 text-white px-4 py-2 rounded">
           Reroll
         </button>
       </form>
     {% endif %}
-
-
-    <!-- Allows user to read the description of the movie -->
-    {% if movie_options %}
-      <div class="mb-4">
-        <p class="message-bubble">
-          Click a movie to read the description:
-        </p>
-      </div>
-
-      <form method="POST" class="space-y-2">
-        {% csrf_token %}
-        {% for movie in movie_options %}
-          <button type="submit" name="selected_movie" value="{{ movie.title }}" class="block w-full text-left bg-white border border-gray-300 hover:bg-blue-100 px-4 py-2 rounded shadow-sm">
-            🎬 {{ movie.title }}
-          </button>
-        {% endfor %}
-      </form>
-
-      <!-- Gets 5 more movie of the same genre -->
-        <button type="submit" name="action" value="more_movies" class="submit-button bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-          Get 5 More Movies
-        </button>
-      </form>
-    {% endif %}
-
-  <!-- Gets the trailer for the movie selected -->
-    {% if selected_title %}
-      <div class="message-bubble bg-blue-100 rounded p-3 mt-4">
-        <h2 class="font-bold">{{ selected_title }}</h2>
-        <p class="mt-2">{{ selected_description }}</p>
-
-        {% if selected_trailer %}
-          <div class="mt-4">
-            <a href="{{ selected_trailer }}" target="_blank" class="text-blue-600 underline">
-              Watch Trailer
-            </a>
-          </div>
-        {% endif %}
-      </div>
-    {% endif %}
   </div>
 
+  <script src="{% static 'js/ui.js' %}"></script>
 {% endblock %}

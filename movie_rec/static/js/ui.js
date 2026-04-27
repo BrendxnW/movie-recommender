@@ -3,9 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     textareas.forEach(function (textarea) {
-        textareas.addEventListener("input", function () {
+        const resizeTextarea = function () {
             textarea.style.height = "auto";
-            textarea.style.height = textarea.scrollHeigh + "px"
-        });
+            textarea.style.height = textarea.scrollHeight + "px";
+        };
+
+        resizeTextarea();
+        textarea.addEventListener("input", resizeTextarea);
     });
 });
